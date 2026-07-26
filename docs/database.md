@@ -39,6 +39,7 @@ V005__create_staffing_ledger_tables.sql
 V006__create_core_function_tables.sql
 V007__create_evaluation_archive_tables.sql
 V008__create_indicator_management_tables.sql
+V009__create_counterpart_evaluation_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -103,6 +104,18 @@ FAILURE
 | indicator_items | 三个页面共同使用的严格一级、二级、三级指标树 |
 | indicator_scoring_rules | 三级指标的阈值扣分、阶梯评分和一票否决配置 |
 | indicator_templates | 完整指标树和评分规则的独立模板快照 |
+| counterpart_relations | 评价主体与对口机构的人工关系及规则建议 |
+| counterpart_questionnaires | 对口部门评价问卷批次和生命周期 |
+| counterpart_questionnaire_dimensions | 问卷评价维度 |
+| counterpart_questionnaire_questions | 1～5分题、文字题及可选指标关联 |
+| counterpart_questionnaire_recipients | 已确认协作关系生成的问卷接收对象 |
+| counterpart_anonymous_mappings | 匿名编号、填写Token和模拟还原记录 |
+| counterpart_questionnaire_responses | 不可重复提交的匿名问卷答卷 |
+| counterpart_questionnaire_answers | 评分及文字答案 |
+| counterpart_push_logs | 本地模拟短信推送和送达日志 |
+| counterpart_anomaly_runs | 确定性异常规则检测批次 |
+| counterpart_anomaly_cases | 异常评分、分派和复核状态 |
+| counterpart_anomaly_reviews | 异常分派、采纳及驳回历史 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -263,6 +276,21 @@ VETO
 
 `indicator_templates.snapshot_json`保存完整指标树和规则快照；来源体系后续变化不会影响
 已有模板。模板可以预览、复制、启停，并初始化新的指标体系和草稿年度版本。
+
+## 对口部门评价
+
+m2-1～m2-4共同使用V009建立的关系、问卷、匿名答卷和异常复核结构。只有
+`org_units`中的启用业务机构可以建立关系；三定主要职责的共享关键词只生成
+`SUGGESTED`建议，必须人工核验为`CONFIRMED`后才能成为问卷接收关系。
+
+问卷批次状态为`DRAFT`、`PUBLISHED`、`DEADLINE`或`CLOSED`。发布后的题目和维度
+只读，需要调整时复制为新草稿。接收对象生成随机匿名编号和填写Token，已提交接收
+对象通过唯一约束和业务状态共同阻止重复提交。Token和后台还原仅用于本地业务演示，
+不代表真实认证、加密或安全匿名。
+
+模拟短信写入`counterpart_push_logs`，不会调用外部服务。异常检测使用端点分、
+与同题均值偏差及短时填写三类确定性规则；均值偏差规则至少需要5个同题样本。
+每次检测创建新的运行批次，不覆盖历史；分派、采纳和驳回均保存在复核历史表中。
 
 ## 权责清单重新导入
 

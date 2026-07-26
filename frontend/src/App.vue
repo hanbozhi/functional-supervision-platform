@@ -15,6 +15,10 @@ import EvaluationArchiveManagement from './components/basic-info/EvaluationArchi
 import IndicatorSystemInitialization from './components/basic-info/IndicatorSystemInitialization.vue'
 import IndicatorDynamicManagement from './components/basic-info/IndicatorDynamicManagement.vue'
 import IndicatorTemplateLibrary from './components/basic-info/IndicatorTemplateLibrary.vue'
+import CounterpartRelations from './components/evaluation/CounterpartRelations.vue'
+import CounterpartQuestionnaires from './components/evaluation/CounterpartQuestionnaires.vue'
+import AnonymousEvaluation from './components/evaluation/AnonymousEvaluation.vue'
+import ScoreAnomalyReview from './components/evaluation/ScoreAnomalyReview.vue'
 
 const navGroups = [
   {
@@ -48,8 +52,8 @@ const navGroups = [
     icon: '📊',
     title: '四方多维评价管理',
     children: [
-      { title: '对口部门评作为（横向协同评价）', children: [['m2-1', '评价关系图谱'], ['m2-2', '在线匿名问卷'], ['m2-3', '评价异常识别']] },
-      { title: '编办评实绩（内部评估）', children: [['m2-4', '评估任务派发'], ['m2-5', '指标评分工作台'], ['m2-6', '绩效数据同步']] },
+      { title: '对口部门评价', children: [['m2-1', '协作关系自动匹配'], ['m2-2', '评价问卷管理/推送'], ['m2-3', '批量匿名评价支持'], ['m2-4', '异常评分预警与复核']] },
+      { title: '编办评实绩（内部评估）', children: [['m2-5', '指标评分工作台'], ['m2-6', '绩效数据同步']] },
       { title: '机构自评功能', children: [['m2-7', '自评报告填报'], ['m2-8', '佐证材料上传'], ['m2-9', '自评结果比对']] },
       { title: '服务对象满意度评价', children: [['m2-10', '隐私保护与脱敏'], ['m2-11', '服务对象名单抽取'], ['m2-12', '问卷短信推送'], ['m2-13', '满意度自动汇总'], ['m2-14', '低分样本核查']] },
     ],
@@ -69,10 +73,10 @@ const pageMeta = {
   'm1-7': ['指标体系初始化配置', '按对象类型初始化一级、二级、三级指标及权重。'],
   'm1-8': ['指标动态管理功能', '维护指标版本、启停状态、适用对象和规则变更。'],
   'm1-9': ['指标模板库管理', '保存完整指标体系快照，支持预览、复制和模板初始化。'],
-  'm2-1': ['评价关系图谱', '配置评价对象之间的横向协同评价关系。'],
-  'm2-2': ['在线匿名问卷', '面向评价主体配置匿名问卷和量表规则。'],
-  'm2-3': ['评价异常识别', '识别集中打分、异常低分、重复提交等异常样本。'],
-  'm2-4': ['评估任务派发', '面向编办内部评估人员分配评分任务和评估对象。'],
+  'm2-1': ['协作关系自动匹配', '维护评价主体与对口机构的协作关系，并人工核验规则建议。'],
+  'm2-2': ['评价问卷管理/推送', '配置问卷批次、评价维度、题目、接收关系和本地模拟推送。'],
+  'm2-3': ['批量匿名评价支持', '使用随机匿名编号和填写Token完成匿名评价演示。'],
+  'm2-4': ['异常评分预警与复核', '通过确定性规则识别异常评分并完成人工分派和复核。'],
   'm2-5': ['指标评分工作台', '按指标、部门、材料完成评分和意见填报。'],
   'm2-6': ['绩效数据同步', '同步绩效、实名制、业务系统等外部数据。'],
   'm2-7': ['自评报告填报', '支持机构在线填报自评报告、说明和改进计划。'],
@@ -349,6 +353,14 @@ onMounted(() => {
         <IndicatorDynamicManagement v-else-if="activePage === 'm1-8'" />
 
         <IndicatorTemplateLibrary v-else-if="activePage === 'm1-9'" />
+
+        <CounterpartRelations v-else-if="activePage === 'm2-1'" />
+
+        <CounterpartQuestionnaires v-else-if="activePage === 'm2-2'" />
+
+        <AnonymousEvaluation v-else-if="activePage === 'm2-3'" />
+
+        <ScoreAnomalyReview v-else-if="activePage === 'm2-4'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>
