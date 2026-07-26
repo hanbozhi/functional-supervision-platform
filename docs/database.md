@@ -41,6 +41,7 @@ V007__create_evaluation_archive_tables.sql
 V008__create_indicator_management_tables.sql
 V009__create_counterpart_evaluation_tables.sql
 V010__create_internal_evaluation_tables.sql
+V011__create_org_performance_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -126,6 +127,13 @@ FAILURE
 | internal_evaluation_score_materials | 评分项与公共附件的关联 |
 | internal_evaluation_reviews | 提交、退回和确认复核历史 |
 | internal_evaluation_status_history | 任务及评分表关键状态变化 |
+| org_performance_import_batches | 组织部绩效XLSX模拟同步批次及统计 |
+| org_performance_field_mappings | 来源表头到平台固定目标字段的映射 |
+| org_performance_raw_records | 不可覆盖的逐行绩效原始记录 |
+| org_performance_import_errors | 导入批次逐行失败明细 |
+| org_performance_corrections | 绩效二次修正草稿、提交及确认结果 |
+| org_performance_correction_materials | 二次修正与公共附件的关联 |
+| org_performance_correction_history | 二次修正状态流转历史 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -350,6 +358,28 @@ import_errors
 ```
 
 它不会删除数据库文件，也不会删除公共表或其他业务表。
+
+## 组织部评绩效
+
+m2-7与m2-8共同使用V011。`org_performance_import_batches`保存本地XLSX模拟同步批次，
+`org_performance_raw_records`保存每一条成功导入的原始记录；同一机构同一年度允许多次导入，
+查询当前原始结果时按最新成功批次选取，但历史原始记录永不覆盖。
+`org_performance_import_errors`保存逐行失败原因，机构名称不一致作为警告，机构编码是唯一匹配依据。
+字段映射保存在`org_performance_field_mappings`，固定目标字段包括机构编码、机构名称、年度、
+绩效等次、重点工作得分、班子评价和备注。
+
+二次修正保存在`org_performance_corrections`，状态依次为`DRAFT`、`SUBMITTED`以及
+`CONFIRMED`或`REJECTED`。只有已确认修正覆盖当前有效结果的相应展示值，原始记录不变；
+驳回后可编辑并重新提交。状态流转写入`org_performance_correction_history`。
+证明材料复用`sys_attachments`：
+
+```text
+business_type = ORG_PERFORMANCE_CORRECTION
+business_id = org_performance_corrections.id
+```
+
+文件默认保存到`backend/storage/org-performance`，可通过`ORG_PERFORMANCE_STORAGE_PATH`
+覆盖；数据库只保存相对路径，下载时必须通过存储根目录安全解析。
 
 重导入采用全有或全无事务：源目录为空、任一文件转换/解析失败，或最终生成 0 条 `rights_items` 时，整次刷新都会回滚，保留导入前的四张权责表数据。只有全部来源文件成功后才提交新数据。
 

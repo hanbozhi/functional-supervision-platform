@@ -21,6 +21,8 @@ import AnonymousEvaluation from './components/evaluation/AnonymousEvaluation.vue
 import ScoreAnomalyReview from './components/evaluation/ScoreAnomalyReview.vue'
 import InternalEvaluationTasks from './components/evaluation/InternalEvaluationTasks.vue'
 import InternalScoringWorkbench from './components/evaluation/InternalScoringWorkbench.vue'
+import OrganizationPerformanceData from './components/evaluation/OrganizationPerformanceData.vue'
+import OrganizationPerformanceCorrections from './components/evaluation/OrganizationPerformanceCorrections.vue'
 
 const navGroups = [
   {
@@ -56,7 +58,8 @@ const navGroups = [
     children: [
       { title: '对口部门评价', children: [['m2-1', '协作关系自动匹配'], ['m2-2', '评价问卷管理/推送'], ['m2-3', '批量匿名评价支持'], ['m2-4', '异常评分预警与复核']] },
       { title: '编办评实绩（内部评估）', children: [['m2-5', '评价任务分类管理'], ['m2-6', '编办在线打分评价']] },
-      { title: '机构自评功能', children: [['m2-7', '自评报告填报'], ['m2-8', '佐证材料上传'], ['m2-9', '自评结果比对']] },
+      { title: '组织部评绩效', children: [['m2-7', '绩效考核数据管理'], ['m2-8', '组织部二次修正评价']] },
+      { title: '机构自评功能', children: [['m2-9', '自评结果比对']] },
       { title: '服务对象满意度评价', children: [['m2-10', '隐私保护与脱敏'], ['m2-11', '服务对象名单抽取'], ['m2-12', '问卷短信推送'], ['m2-13', '满意度自动汇总'], ['m2-14', '低分样本核查']] },
     ],
   },
@@ -81,8 +84,8 @@ const pageMeta = {
   'm2-4': ['异常评分预警与复核', '通过确定性规则识别异常评分并完成人工分派和复核。'],
   'm2-5': ['评价任务分类管理', '配置专项、年度和机构调整后评估任务、对象、指标版本和人员。'],
   'm2-6': ['编办在线打分评价', '按任务指标快照逐项评分、上传佐证并完成提交和复核。'],
-  'm2-7': ['自评报告填报', '支持机构在线填报自评报告、说明和改进计划。'],
-  'm2-8': ['佐证材料上传', '上传制度文件、工作台账、照片、表格等佐证材料。'],
+  'm2-7': ['绩效考核数据管理', '通过本地XLSX模拟组织部绩效数据同步，维护字段映射和逐行校验结果。'],
+  'm2-8': ['组织部二次修正评价', '保留原始绩效记录，完成二次修正、证明材料和确认流程。'],
   'm2-9': ['自评结果比对', '比对自评分与外部评分、历史评分和系统测算结果。'],
   'm2-10': ['隐私保护与脱敏', '对服务对象评价名单、手机号、身份信息进行脱敏处理。'],
   'm2-11': ['服务对象名单抽取', '按服务事项和评价周期抽取服务对象样本。'],
@@ -367,6 +370,10 @@ onMounted(() => {
         <InternalEvaluationTasks v-else-if="activePage === 'm2-5'" />
 
         <InternalScoringWorkbench v-else-if="activePage === 'm2-6'" />
+
+        <OrganizationPerformanceData v-else-if="activePage === 'm2-7'" />
+
+        <OrganizationPerformanceCorrections v-else-if="activePage === 'm2-8'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>
