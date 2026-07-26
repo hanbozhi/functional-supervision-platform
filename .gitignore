@@ -1,0 +1,57 @@
+# Java / Maven
+backend/target/
+**/target/
+*.class
+
+# Node / Vite / package managers
+**/node_modules/
+**/dist/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local SQLite working database and sidecar files
+*.sqlite
+*.sqlite3
+*-wal
+*-shm
+*-journal
+
+# Environment files, credentials and local machine configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# IDE / operating system
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs, temporary files and local agent artifacts
+*.log
+*.pid
+logs/
+tmp/
+temp/
+.codex-tmp/
+.agents/
+*.tmp
+*.bak
+~$*

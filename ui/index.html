@@ -1,0 +1,2307 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>职能运行智能评估监管平台</title>
+<script src="echarts.min.js"></script>
+<style>
+:root {
+  --primary: #1677ff; --primary-light: #e6f4ff; --primary-dark: #0958d9;
+  --success: #00b96b; --success-bg: #f6ffed;
+  --warning: #fa8c16; --warning-bg: #fffbe6;
+  --danger: #f5222d; --danger-bg: #fff1f0;
+  --info: #1677ff; --info-bg: #e6f4ff;
+  --bg: #f5f7fa; --card-bg: #ffffff; --border: #e8ecf1;
+  --text: #1d2129; --text-secondary: #86909c; --text-muted: #c9cdd4;
+  --sidebar-bg: #ffffff; --sidebar-hover: #f5f5f5;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04); --shadow: 0 2px 8px rgba(0,0,0,.06);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,.08); --radius: 8px; --radius-sm: 6px;
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+  --font: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);display:flex;min-height:100vh;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+.sidebar{width:248px;height:100vh;background:#fff;color:#1f1f1f;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;position:sticky;top:0;z-index:20;border-right:1px solid #e5e7eb;box-shadow:2px 0 10px rgba(0,0,0,.03)}
+.sidebar::after{content:"";position:absolute;right:0;top:0;bottom:0;width:1px;background:#e5e7eb}
+.sidebar-logo{padding:24px 20px 20px;border-bottom:1px solid #eceff3;display:flex;align-items:center;gap:12px}
+.sidebar-logo .logo-icon{width:36px;height:36px;background:#111827;color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sidebar-logo .logo-text{font-size:15px;font-weight:600;letter-spacing:1px;line-height:1.4;color:#111827}
+.sidebar-logo .logo-text small{display:block;font-size:11px;font-weight:400;color:#9ca3af;letter-spacing:2px}
+.nav-list{padding:12px 0;flex:1}
+.nav-group{margin-bottom:2px}
+.nav-group .group-title{display:flex;align-items:center;gap:10px;padding:11px 20px;font-size:13px;color:#6b7280;cursor:pointer;transition:var(--transition);user-select:none;position:relative}
+.nav-group .group-title:hover{color:#111827;background:#f5f5f5}
+.nav-group .group-title .group-icon{width:18px;text-align:center;flex-shrink:0;font-size:14px}
+.nav-group .group-title .group-arrow{font-size:10px;margin-left:auto;transition:transform var(--transition);opacity:.5}
+.nav-group.open .group-title .group-arrow{transform:rotate(90deg);opacity:1}
+.nav-group.placeholder .group-title{cursor:default;opacity:.35}
+.nav-group.placeholder .group-title:hover{background:transparent}
+.nav-group.placeholder .group-arrow{visibility:hidden}
+.nav-group.direct .group-arrow{visibility:hidden}
+.nav-group .group-children{display:none;padding:4px 0}
+.nav-group.open .group-children{display:block}
+.nav-group .group-children a{display:flex;align-items:center;gap:8px;padding:9px 20px 9px 50px;font-size:13px;color:#6b7280;transition:var(--transition);position:relative}
+.nav-group .group-children a::before{content:"";position:absolute;left:50px;top:50%;transform:translateY(-50%);width:5px;height:5px;border-radius:50%;background:transparent;transition:var(--transition)}
+.nav-group .group-children a:hover{color:#111827;background:#f5f5f5}
+.nav-group .group-children a:hover::before{background:#9ca3af}
+.nav-group .group-children a.active{color:#111827;background:#eeeeee;font-weight:500}
+.nav-group .group-children a.active::before{background:#111827;box-shadow:none}
+.nav-group.active .group-title{color:#111827;background:#f3f4f6;border-right:3px solid #111827}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.header{height:56px;background:var(--card-bg);display:flex;align-items:center;justify-content:space-between;padding:0 28px;box-shadow:var(--shadow-sm);z-index:10;position:relative}
+.header::after{content:"";position:absolute;bottom:0;left:0;right:0;height:1px;background:var(--border)}
+.header .breadcrumb{font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+.header .breadcrumb .sep{color:var(--text-muted)}
+.header .user-area{display:flex;align-items:center;gap:16px}
+.header .user-area .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1677ff,#69b1ff);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.header .user-area .username{font-size:13px;color:var(--text)}
+.header .user-area .badge{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--primary-light);color:var(--primary);font-weight:500}
+.content{flex:1;padding:24px 28px;overflow-y:auto;scroll-behavior:smooth}
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:#d9d9d9;border-radius:3px}
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.card{background:var(--card-bg);border-radius:var(--radius);padding:24px;margin-bottom:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:box-shadow var(--transition)}
+.card:hover{box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.card-header h3{font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-header h3 .icon{font-size:16px}
+.card-header .extra{font-size:12px;color:var(--text-secondary)}
+.alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:20px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.alert::before{font-size:15px;flex-shrink:0;margin-top:1px}
+.alert-info{background:var(--info-bg);border:1px solid #91caff;color:#0958d9}.alert-info::before{content:"ℹ️"}
+.alert-warning{background:var(--warning-bg);border:1px solid #ffd591;color:#ad6800}.alert-warning::before{content:"⚠️"}
+.alert-success{background:var(--success-bg);border:1px solid #b7eb8f;color:#135200}.alert-success::before{content:"✅"}
+.alert-danger{background:var(--danger-bg);border:1px solid #ffa39e;color:#a8071a}.alert-danger::before{content:"🚨"}
+
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;font-size:12px;font-weight:500;white-space:nowrap}
+.tag-success{background:var(--success-bg);color:var(--success);border:1px solid #b7eb8f}
+.tag-warning{background:var(--warning-bg);color:var(--warning);border:1px solid #ffd591}
+.tag-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #ffa39e}
+.tag-info{background:var(--info-bg);color:var(--primary);border:1px solid #91caff}
+.tag-default{background:#f5f5f5;color:#666;border:1px solid #e8e8e8}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all var(--transition);font-family:inherit;line-height:1.5;white-space:nowrap;outline:none}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);box-shadow:0 2px 6px rgba(22,119,255,.3)}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#009a5a;box-shadow:0 2px 6px rgba(0,185,107,.3)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#d32029;box-shadow:0 2px 6px rgba(245,34,45,.3)}
+.btn-outline{background:#fff;color:var(--text);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:4px}
+.btn-group{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+
+.form-row{display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.form-item{display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px}
+.form-item label{font-size:13px;font-weight:500;color:var(--text)}
+.form-item .required::after{content:" *";color:var(--danger)}
+.form-item input,.form-item select,.form-item textarea{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;transition:all var(--transition);background:#fff;color:var(--text)}
+.form-item input:hover,.form-item select:hover,.form-item textarea:hover{border-color:#b3c6e0}
+.form-item input:focus,.form-item select:focus,.form-item textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(22,119,255,.1)}
+.form-item textarea{resize:vertical;min-height:80px}
+.form-item select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.search-bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:flex-end}
+.search-bar .form-item{margin-bottom:0;min-width:160px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+table thead th{background:#fafbfc;padding:12px 14px;text-align:left;font-weight:600;color:var(--text);border-bottom:2px solid var(--border);font-size:12px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+table tbody td{padding:12px 14px;border-bottom:1px solid #f0f2f5;color:var(--text-secondary)}
+table tbody tr{transition:background var(--transition)}
+table tbody tr:hover{background:#fafbfc}
+table tbody tr:last-child td{border-bottom:none}
+.table-scroll{width:100%;overflow-x:auto}
+.table-scroll table{min-width:1800px}
+#rightsLedgerTable tbody td{white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+#rightsLedgerTable tbody td:nth-child(1),
+#rightsLedgerTable tbody td:nth-child(4),
+#rightsLedgerTable tbody td:nth-child(15),
+#rightsLedgerTable tbody td:nth-child(16){white-space:nowrap;max-width:none}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:var(--card-bg);border-radius:var(--radius);padding:22px 20px;box-shadow:var(--shadow-sm);border:1px solid var(--border);text-align:center;transition:all var(--transition);position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--primary);opacity:0;transition:opacity var(--transition)}
+.stat-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.stat-card:hover::before{opacity:1}
+.stat-card .num{font-size:34px;font-weight:700;color:var(--primary);line-height:1.2}
+.stat-card .num.green{color:var(--success)}.stat-card .num.orange{color:var(--warning)}.stat-card .num.red{color:var(--danger)}
+.stat-card .label{font-size:13px;color:var(--text-secondary);margin-top:4px}
+.stat-card .sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-box{background:var(--card-bg);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:box-shadow var(--transition)}
+.chart-box:hover{box-shadow:var(--shadow)}
+.chart-box h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-box h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.chart{width:100%;height:340px}
+
+.progress-bar{height:6px;background:#f0f2f5;border-radius:3px;overflow:hidden}
+.progress-bar .fill{height:100%;border-radius:3px;transition:width .8s ease}
+.fill-green{background:var(--success)}.fill-yellow{background:var(--warning)}.fill-red{background:var(--danger)}
+
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:"";position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border)}
+.timeline-item{position:relative;padding-bottom:20px}
+.timeline-item:last-child{padding-bottom:0}
+.timeline-item::before{content:"";position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--primary)}
+.timeline-item .time{font-size:12px;color:var(--text-muted);margin-bottom:4px}
+.timeline-item .text{font-size:13px;color:var(--text);line-height:1.5}
+
+.ai-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;background:linear-gradient(135deg,#722ed1,#1677ff);color:#fff}
+
+.file-upload{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:28px;text-align:center;cursor:pointer;transition:all var(--transition);background:#fafbfc}
+.file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+.file-upload .icon{font-size:32px;margin-bottom:8px;opacity:.5}
+.file-upload .tip{font-size:12px;color:var(--text-secondary)}
+
+.source-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.source-card{position:relative;border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:#fff;transition:all var(--transition);min-height:104px}
+.source-card:hover{border-color:var(--primary);box-shadow:var(--shadow)}
+.source-card input{position:absolute;right:12px;top:12px}
+.source-card .source-icon{font-size:24px;margin-bottom:10px}
+.source-card .source-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.source-card .source-meta{font-size:12px;color:var(--text-secondary);line-height:1.5}
+.metric-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric-item{padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius);background:#fafbfc}
+.metric-item .label{font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.metric-item .value{font-size:22px;font-weight:700;color:var(--text)}
+.grade-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600}
+.grade-excellent{background:var(--success-bg);color:var(--success);border:1px solid #b7eb8f}
+.grade-good{background:var(--info-bg);color:var(--primary);border:1px solid #91caff}
+.grade-pass{background:var(--warning-bg);color:var(--warning);border:1px solid #ffd591}
+.grade-fail{background:var(--danger-bg);color:var(--danger);border:1px solid #ffa39e}
+.score-cell{font-size:18px;font-weight:700;color:var(--text)}
+.score-cell small{display:block;font-size:11px;font-weight:400;color:var(--text-muted);margin-top:2px}
+.distribution{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.distribution .bucket{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:#fff}
+.distribution .bucket .count{font-size:26px;font-weight:700;margin:8px 0 4px}
+.warning-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.warning-type-card{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:#fff;min-height:176px;position:relative;overflow:hidden}
+.warning-type-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--primary)}
+.warning-type-card.red::before{background:var(--danger)}
+.warning-type-card.yellow::before{background:var(--warning)}
+.warning-type-card.blue::before{background:var(--primary)}
+.warning-type-card h4{font-size:15px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.warning-type-card p{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.warning-type-card .type-meta{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+.ledger-board{display:flex;flex-direction:column;gap:16px}
+.ledger-column{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius);padding:14px;min-height:0}
+.ledger-column .column-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-weight:600;color:var(--text)}
+.ledger-column .column-count{font-size:12px;color:var(--text-secondary);font-weight:400}
+.ledger-column .column-actions{display:flex;align-items:center;gap:10px}
+.warning-event{background:#fff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;box-shadow:var(--shadow-sm)}
+.warning-event:last-child{margin-bottom:0}
+.warning-event .event-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+.warning-event .event-id{font-weight:600;color:var(--text);font-size:13px}
+.warning-event .event-time{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.warning-event .event-dept{font-size:13px;color:var(--text);margin-bottom:8px}
+.warning-event .event-data{font-size:12px;color:var(--text-secondary);line-height:1.6;background:#fafbfc;border-radius:6px;padding:8px}
+.warning-event .event-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.evidence-modal{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px}
+.evidence-modal.show{display:flex}
+.evidence-panel{width:min(760px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:var(--radius);box-shadow:0 12px 40px rgba(0,0,0,.18);border:1px solid var(--border)}
+.evidence-panel .panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.evidence-panel .panel-head h3{font-size:16px;font-weight:600}
+.evidence-panel .panel-body{padding:22px}
+.evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.evidence-box{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;background:#fafbfc}
+.evidence-box .label{font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.evidence-box .value{font-size:13px;color:var(--text);line-height:1.6}
+.calc-line{padding:12px 14px;background:var(--primary-light);color:#0958d9;border-radius:var(--radius-sm);font-family:Consolas,Monaco,monospace;font-size:12px;margin-bottom:16px}
+
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}.empty .icon{font-size:48px;margin-bottom:12px;opacity:.4}
+
+.nav-group .group-children.nested-menu{padding:3px 0 6px}
+.nav-subgroup{margin:1px 0}
+.nav-subgroup .subgroup-title{display:flex;align-items:center;gap:8px;padding:9px 18px 9px 46px;font-size:12px;color:#6b7280;cursor:pointer;transition:var(--transition);user-select:none;line-height:1.45}
+.nav-subgroup .subgroup-title:hover{color:#111827;background:#f5f5f5}
+.nav-subgroup .subgroup-title span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-subgroup .subgroup-arrow{font-size:9px;margin-left:auto;opacity:.5;transition:transform var(--transition)}
+.nav-subgroup.open .subgroup-arrow{transform:rotate(90deg);opacity:1}
+.nav-subgroup .subgroup-children{display:none;padding:1px 0 4px}
+.nav-subgroup.open .subgroup-children{display:block}
+.nav-subgroup .subgroup-children a{padding-left:66px;font-size:12px;color:#6b7280}
+.nav-subgroup .subgroup-children a::before{left:58px;width:4px;height:4px}
+.nav-subgroup .subgroup-children a.active{color:#111827;background:#eeeeee;font-weight:500}
+.nav-subgroup .subgroup-children a.active::before{background:#111827;box-shadow:none}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.feature-card{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
+.feature-card .k{font-size:12px;color:var(--text-secondary);margin-bottom:6px}.feature-card .v{font-size:22px;font-weight:700;color:var(--primary)}
+.flow-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.flow-step{border:1px solid var(--border);background:#fafbfc;border-radius:var(--radius-sm);padding:14px}
+.flow-step b{display:block;color:var(--text);margin-bottom:5px}.flow-step span{font-size:12px;color:var(--text-secondary)}
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.score-box{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;background:#fff}.score-box .stars{color:#faad14;font-size:18px;letter-spacing:2px;margin-top:6px}
+.mini-tree{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:18px}.mini-tree div{padding:7px 10px;color:var(--text-secondary)}.mini-tree .on{background:var(--primary-light);color:var(--primary);border-radius:6px;font-weight:600}
+.module-layout{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-bottom:20px}
+.side-panel{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}
+.side-panel h4{font-size:13px;margin-bottom:12px;color:var(--text)}
+.tree-line{padding:8px 10px;border-radius:6px;color:var(--text-secondary);font-size:13px;line-height:1.45}
+.tree-line.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.detail-panel{border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px;background:#fff}
+.field-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.field-box{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px}
+.field-box .name{font-size:12px;color:var(--text-secondary);margin-bottom:6px}.field-box .val{font-size:18px;font-weight:700;color:var(--text)}
+.step-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.step-card{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;min-height:88px}
+.step-card b{display:block;margin-bottom:6px;color:var(--text)}.step-card span{font-size:12px;color:var(--text-secondary);line-height:1.5}
+.version-list,.change-log{display:flex;flex-direction:column;gap:10px}
+.version-item,.log-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px}
+.code-badge{font-family:Consolas,monospace;background:#f0f5ff;color:#0958d9;border:1px solid #adc6ff;border-radius:4px;padding:2px 6px;font-size:12px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr 180px;gap:16px;align-items:stretch}
+.compare-box{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.compare-box h4{font-size:13px;margin-bottom:10px;color:var(--text)}.compare-box p{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.match-score{display:flex;flex-direction:column;justify-content:center;text-align:center;background:var(--primary-light);border:1px solid #91caff;border-radius:var(--radius-sm);padding:14px}.match-score b{font-size:28px;color:var(--primary)}
+.archive-search .search-bar{align-items:flex-end}.archive-card{display:grid;grid-template-columns:120px 1fr 110px;gap:14px;align-items:center;padding:14px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fafbfc;margin-bottom:10px}
+.indicator-matrix{display:grid;grid-template-columns:240px 1fr;gap:16px}.indicator-tree{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px}
+.indicator-node{padding:8px 10px;border-radius:6px;color:var(--text-secondary)}.indicator-node.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.weight-row{display:grid;grid-template-columns:160px 1fr 80px;gap:12px;align-items:center;margin-bottom:14px}.weight-track{height:8px;background:#edf1f7;border-radius:8px;overflow:hidden}.weight-fill{height:100%;background:linear-gradient(90deg,#1677ff,#69b1ff);border-radius:8px}
+.rule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.rule-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}.rule-card h4{font-size:14px;margin-bottom:10px}
+.template-library{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.template-card{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:#fff;box-shadow:var(--shadow-sm)}.template-card h4{font-size:15px;margin-bottom:10px}.template-card p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px}
+.relation-map,.questionnaire-builder,.anonymous-console,.outlier-review,.task-board,.scoring-workbench,.performance-sync,.correction-compare,.public-portal,.privacy-ledger,.rpa-pipeline,.self-review-board,.evidence-cabinet,.material-alert-center{margin-bottom:20px}
+.network-grid{display:grid;grid-template-columns:320px 1fr;gap:16px}.network-card{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}.network-node{padding:9px 12px;margin:8px 0;border-radius:18px;background:#fff;border:1px solid var(--border);font-size:13px}.network-node.center{background:var(--primary-light);color:var(--primary);font-weight:600;text-align:center}
+.questionnaire-panel{display:grid;grid-template-columns:300px 1fr;gap:16px}.dimension-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.dimension-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;background:#fff}.dimension-card strong{display:block;margin-bottom:8px}.dimension-card .scale{color:#faad14;font-size:16px;letter-spacing:1px}
+.mask-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.mask-card{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px}.mask-code{font-family:Consolas,monospace;font-size:18px;font-weight:700;color:var(--primary);margin-bottom:8px}
+.sigma-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.sigma-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}.sigma-card.danger{border-color:#ffa39e;background:var(--danger-bg)}.sigma-value{font-size:26px;font-weight:700;margin:8px 0}
+.task-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.task-type-card{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:#fff}.task-type-card h4{font-size:15px;margin-bottom:10px}.task-type-card p{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px}
+.scoring-grid{display:grid;grid-template-columns:300px 1fr;gap:16px}.indicator-list{border:1px solid var(--border);border-radius:var(--radius-sm);background:#fafbfc;padding:12px}.indicator-pill{padding:10px 12px;border-radius:6px;margin-bottom:8px;background:#fff;color:var(--text-secondary)}.indicator-pill.active{background:var(--primary-light);color:var(--primary);font-weight:600}.score-editor{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}
+.sync-pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.sync-step{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;background:#fafbfc}.sync-step b{display:block;margin-bottom:6px}.map-row{display:grid;grid-template-columns:1fr 40px 1fr 90px;gap:10px;align-items:center;padding:10px;border-bottom:1px solid #f0f2f5}
+.correction-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.score-compare{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}.score-compare .big{font-size:34px;font-weight:700;color:var(--primary)}
+.portal-shell{max-width:880px;margin:0 auto}.portal-header{padding:22px;border-radius:var(--radius);background:linear-gradient(135deg,#e6f4ff,#fff);border:1px solid #91caff;margin-bottom:16px}.portal-form{border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:#fff}
+.privacy-grid{display:grid;grid-template-columns:260px 1fr;gap:16px}.privacy-rule{background:#fafbfc;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px}
+.pipeline-line{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.pipeline-node{position:relative;border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}.pipeline-node b{display:block;margin-bottom:8px}.rpa-pipeline .source-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.self-board-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.self-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fafbfc}.self-card .num{font-size:24px;font-weight:700;color:var(--primary)}
+.cabinet-grid{display:grid;grid-template-columns:280px 1fr;gap:16px}.folder-list{border:1px solid var(--border);border-radius:var(--radius-sm);background:#fafbfc;padding:12px}.folder-item{padding:10px;border-radius:6px;margin-bottom:8px;background:#fff}.folder-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}.file-row{display:grid;grid-template-columns:120px 1fr 80px 130px;gap:10px;align-items:center;padding:12px;border-bottom:1px solid #f0f2f5}
+.alert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.alert-rule{border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;background:#fff}.alert-rule.danger{background:var(--danger-bg);border-color:#ffa39e}.alert-rule.warning{background:var(--warning-bg);border-color:#ffd591}
+@media(max-width:1200px){.feature-grid,.flow-steps,.score-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1200px){.module-layout,.indicator-matrix,.compare-grid{grid-template-columns:1fr}.field-grid,.rule-grid,.template-library,.step-strip{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1200px){.network-grid,.questionnaire-panel,.scoring-grid,.privacy-grid,.cabinet-grid,.correction-grid{grid-template-columns:1fr}.dimension-grid,.mask-grid,.sigma-grid,.task-type-grid,.sync-pipeline,.pipeline-line,.source-grid,.self-board-grid,.alert-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.field-grid,.rule-grid,.template-library,.step-strip{grid-template-columns:1fr}.archive-card{grid-template-columns:1fr}.weight-row{grid-template-columns:1fr}}
+@media(max-width:700px){.dimension-grid,.mask-grid,.sigma-grid,.task-type-grid,.sync-pipeline,.pipeline-line,.source-grid,.self-board-grid,.alert-grid{grid-template-columns:1fr}.map-row,.file-row{grid-template-columns:1fr}}
+@media(max-width:700px){.feature-grid,.flow-steps,.score-grid{grid-template-columns:1fr}.nav-subgroup .subgroup-title span:first-child,.nav-subgroup .subgroup-children{display:none}}
+
+
+@media(max-width:1400px){.chart-row{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1200px){.source-grid{grid-template-columns:repeat(3,1fr)}.metric-strip,.distribution,.warning-type-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.sidebar{width:64px}.sidebar-logo .logo-text,.nav-group .group-title span:not(.group-arrow),.nav-group .group-children{display:none}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">📋</div>
+    <div class="logo-text">职能运行评估<small>智能监管平台</small></div>
+  </div>
+  <nav class="nav-list">
+    <div class="nav-group" data-module="1">
+      <div class="group-title"><span class="group-icon">📁</span><span>基础信息管理</span><span class="group-arrow">▶</span></div>
+      <div class="group-children nested-menu">
+        <div class="nav-subgroup open">
+          <div class="subgroup-title"><span>机构编制基础数据库管理</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m1-1">单位架构管理</a>
+            <a href="#" data-page="m1-2">三定方案信息归集</a>
+            <a href="#" data-page="m1-3">权责清单管理</a>
+            <a href="#" data-page="m1-4">实有人员与领导职数管理</a>
+            <a href="#" data-page="m1-5">部门核心职能清单库</a>
+            <a href="#" data-page="m1-6">历史评估档案电子化管理</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>三级量化评估指标体系配置</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m1-7">四级指标架构初始化配置</a>
+            <a href="#" data-page="m1-8">指标动态管理功能</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>指标动态管理</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m1-9">指标模板库管理</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-group" data-module="2">
+      <div class="group-title"><span class="group-icon">📊</span><span>四方多维评价管理</span><span class="group-arrow">▶</span></div>
+      <div class="group-children nested-menu">
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>对口部门评作为（横向协同评价）</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m2-1">协作关系自动匹配</a>
+            <a href="#" data-page="m2-2" data-path="四方多维评价管理 / 对口部门评作为（横向协同评价） / 评价问卷管理/推送">评价问卷管理/推送</a>
+            <a href="#" data-page="m2-3">批量匿名评价支持</a>
+            <a href="#" data-page="m2-4">异常评分AI标记预警</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>编办评履职（专业监管评价）</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m2-5">评价任务分类管理</a>
+            <a href="#" data-page="m2-6">编办在线打分评价</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>组织部评绩效（联动绩效评价）</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m2-7">绩效考核数据管理</a>
+            <a href="#" data-page="m2-8">组织部二次修正评价</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>群众评服务（社会化评价）</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m2-9">政务服务网评价入口</a>
+            <a href="#" data-page="m2-10">评价数据管理</a>
+            <a href="#" data-page="m2-11">12345热线/政务平台评价自动归集</a>
+          </div>
+        </div>
+        <div class="nav-subgroup">
+          <div class="subgroup-title"><span>部门自评管理</span><span class="subgroup-arrow">▶</span></div>
+          <div class="subgroup-children">
+            <a href="#" data-page="m2-12">自评任务管理</a>
+            <a href="#" data-page="m2-13">佐证材料批量上传与分类管理</a>
+            <a href="#" data-page="m2-14">自评材料AI预警管理</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-group" data-module="4">
+      <div class="group-title"><span class="group-icon">🗂️</span><span>数据采集与评估</span><span class="group-arrow">▶</span></div>
+      <div class="group-children">
+        <a href="#" data-page="m4-1">数据采集与解析</a>
+        <a href="#" data-page="m4-2">AI评估模块</a>
+      </div>
+    </div>
+    <div class="nav-group direct" data-module="3">
+      <div class="group-title" data-page="m3-1"><span class="group-icon">🔔</span><span>智能预警与疑点核查</span><span class="group-arrow">▶</span></div>
+    </div>
+    <div class="nav-group" data-module="5">
+      <div class="group-title"><span class="group-icon">✅</span><span>问题整改闭环管理</span><span class="group-arrow">▶</span></div>
+      <div class="group-children">
+        <a href="#" data-page="m5-1">整改通知书下发</a>
+        <a href="#" data-page="m5-2">整改方案填报</a>
+        <a href="#" data-page="m5-3">AI智能核验</a>
+        <a href="#" data-page="m5-4">人工复核销号</a>
+        <a href="#" data-page="m5-5">整改记录归档</a>
+      </div>
+    </div>
+    <div class="nav-group open active" data-module="6">
+      <div class="group-title"><span class="group-icon">📈</span><span>大数据可视化驾驶舱</span><span class="group-arrow">▶</span></div>
+      <div class="group-children">
+        <a href="#" data-page="m6-1" class="active">全市总览大屏</a>
+        <a href="#" data-page="m6-2">部门专题分析</a>
+        <a href="#" data-page="m6-3">编制资源分析</a>
+        <a href="#" data-page="m6-4">整改督办看板</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<div class="main">
+  <header class="header">
+    <div class="breadcrumb">📍 <span id="breadcrumbText">大数据可视化驾驶舱 / 全市总览大屏</span></div>
+    <div class="user-area">
+      <span class="badge">管理员</span>
+      <span class="username">张主任</span>
+      <div class="avatar">张</div>
+    </div>
+  </header>
+  <div class="content" id="mainContent">
+
+<!-- ====== 模块1-1: 单位架构管理 ====== -->
+<div class="page" id="m1-1">
+  <div class="alert alert-info">用于维护政府组织机构层级、机构性质、核定编制和启停状态，突出“单位架构管理”的组织树视角。</div>
+  <div class="module-layout org-layout">
+    <div class="side-panel">
+      <h4>组织机构树</h4>
+      <div class="tree-line active">📍 市机构编制委员会</div>
+      <div class="tree-line">├─ 市政府工作部门</div>
+      <div class="tree-line">│　├─ 市发展和改革委员会</div>
+      <div class="tree-line">│　├─ 市教育局</div>
+      <div class="tree-line">│　├─ 市卫生健康委员会</div>
+      <div class="tree-line">│　└─ 市城市管理局</div>
+      <div class="tree-line">└─ 直属事业单位</div>
+      <div class="tree-line">　　└─ 市公共资源交易中心</div>
+    </div>
+    <div class="detail-panel">
+      <div class="card-header"><h3><span class="icon">🏛️</span>单位架构详情</h3><span class="extra">政府组织机构管理</span></div>
+      <div class="field-grid">
+        <div class="field-box"><div class="name">机构总数</div><div class="val">82</div></div>
+        <div class="field-box"><div class="name">行政机关</div><div class="val">46</div></div>
+        <div class="field-box"><div class="name">事业单位</div><div class="val">36</div></div>
+      </div>
+      <table><thead><tr><th>机构名称</th><th>统一代码</th><th>层级</th><th>机构性质</th><th>核定编制</th><th>状态</th><th>操作</th></tr></thead><tbody>
+        <tr><td>市发展和改革委员会</td><td><span class="code-badge">JG-001</span></td><td>市级</td><td>行政机关</td><td>68</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-outline">详情</button></td></tr>
+        <tr><td>市教育局</td><td><span class="code-badge">JG-002</span></td><td>市级</td><td>行政机关</td><td>56</td><td><span class="tag tag-success">启用</span></td><td><button class="btn btn-sm btn-outline">详情</button></td></tr>
+        <tr><td>市公共资源交易中心</td><td><span class="code-badge">JG-021</span></td><td>市级</td><td>事业单位</td><td>42</td><td><span class="tag tag-warning">待核验</span></td><td><button class="btn btn-sm btn-primary">核验</button></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块1-2: 三定方案信息归集 ====== -->
+<div class="page" id="m1-2">
+  <div class="alert alert-info">三定方案按部门独立归集和分析，支持 Excel 批量导入与手动录入，不做跨部门交叉比对。</div>
+  <div class="card knowledge-import">
+    <div class="card-header"><h3><span class="icon">📚</span>三定文本导入与知识库更新</h3><span class="extra">建立结构化知识库</span></div>
+    <div class="step-strip">
+      <div class="step-card"><b>1. 选择部门</b><span>按部门、层级、行业分类建立独立资料库。</span></div>
+      <div class="step-card"><b>2. 导入文本</b><span>支持 Excel 批量导入及手动录入三定规定。</span></div>
+      <div class="step-card"><b>3. 字段抽取</b><span>机构名称、机构性质、编制类型、核定编制数。</span></div>
+      <div class="step-card"><b>4. 知识库更新</b><span>新增内容生成版本记录，进入复核队列。</span></div>
+    </div>
+    <div class="file-upload"><div class="icon">📄</div><div class="tip">上传三定规定 Excel/Word/PDF，系统按部门独立解析并写入知识库</div></div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="showToast('三定方案已进入解析队列')">📥 批量导入</button><button class="btn btn-outline">手动录入</button><button class="btn btn-outline">字段映射设置</button></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🕘</span>版本历史与结构化字段</h3><span class="extra">版本追溯</span></div>
+    <div class="version-list">
+      <div class="version-item"><span><b>市发改委 V2026.03</b>　新增能源协调职责 3 项，抽取字段 26 项</span><span class="tag tag-success">已入库</span></div>
+      <div class="version-item"><span><b>市教育局 V2025.12</b>　调整内设机构 2 个，新增编制类型字段</span><span class="tag tag-warning">待复核</span></div>
+      <div class="version-item"><span><b>市卫健委 V2025.08</b>　补充公共卫生职责条目 6 项</span><span class="tag tag-info">知识库更新</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块1-3: 权责清单管理 ====== -->
+<div class="page" id="m1-3">
+  <div class="alert alert-info">从 SQLite 直接读取各部门网上公示权责清单，支持按部门、权力类型、来源文件和关键词检索，点击可查看原始来源与字段详情。</div>
+  <div class="card authority-ledger">
+    <div class="card-header"><h3><span class="icon">🧾</span>责权清单管理</h3><span class="extra">SQLite 实时查询</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>关键词</label><input id="rightsKeyword" placeholder="事项名称、依据、部门、原始值"></div>
+      <div class="form-item"><label>部门</label><select id="rightsDepartment"><option value="">全部部门</option></select></div>
+      <div class="form-item"><label>权力类型</label><select id="rightsPowerType"><option value="">全部类型</option></select></div>
+      <div class="form-item"><label>来源文件</label><select id="rightsSourceFile"><option value="">全部来源</option></select></div>
+      <button class="btn btn-primary" id="rightsQueryBtn">🔍 查询</button>
+      <button class="btn btn-outline" id="rightsResetBtn">重置</button>
+      <button class="btn btn-outline" id="rightsExportBtn">导出当前页</button>
+    </div>
+    <div class="stat-grid" style="margin-bottom:20px">
+      <div class="stat-card"><div class="num" id="rightsTotalItems">0</div><div class="label">权责事项</div><div class="sub">标准化台账</div></div>
+      <div class="stat-card"><div class="num green" id="rightsTotalFiles">0</div><div class="label">来源文件</div><div class="sub">已入库文档</div></div>
+      <div class="stat-card"><div class="num orange" id="rightsTotalDepartments">0</div><div class="label">涉及部门</div><div class="sub">部门维度统计</div></div>
+      <div class="stat-card"><div class="num red" id="rightsTotalPowerTypes">0</div><div class="label">权力类型</div><div class="sub">事项分类维度</div></div>
+    </div>
+    <div class="alert alert-success" id="rightsLedgerHint">正在加载权责清单数据...</div>
+    <div class="table-scroll"><table id="rightsLedgerTable"><thead><tr><th>序号</th><th>事项名称</th><th>子项名称</th><th>权力类型</th><th>实施依据</th><th>行使主体</th><th>承办机构</th><th>实施层级及权限</th><th>部门职责</th><th>责任事项内容</th><th>责任事项依据</th><th>追责对象范围</th><th>追责情形</th><th>备注</th><th>状态</th></tr></thead><tbody id="rightsLedgerBody">
+      <tr><td colspan="15" style="text-align:center;color:var(--text-secondary);padding:28px 14px">数据加载中...</td></tr>
+    </tbody></table></div>
+    <div id="rightsPager" class="btn-group" style="justify-content:flex-end; margin-top:16px; flex-wrap:wrap;"></div>
+    <div class="card" style="margin-top:18px">
+      <div class="card-header"><h3><span class="icon">📊</span>来源分布与部门排行</h3><span class="extra">按当前数据库统计</span></div>
+      <div class="compare-grid">
+        <div class="compare-box">
+          <h4>权力类型分布</h4>
+          <div class="change-log" id="rightsPowerTypeStats"></div>
+        </div>
+        <div class="compare-box">
+          <h4>部门事项排行</h4>
+          <div class="change-log" id="rightsDeptStats"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="evidence-modal" id="rightsDetailModal" onclick="closeRightsDetail(event)">
+  <div class="evidence-panel">
+    <div class="panel-head">
+      <h3>权责事项详情</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeRightsDetail()">关闭</button>
+    </div>
+    <div class="panel-body">
+      <div class="alert alert-info" id="rightsDetailSummary">点击台账中的“查看”按钮查看来源、字段和值。</div>
+      <div class="evidence-grid" id="rightsDetailGrid"></div>
+      <div class="calc-line" id="rightsDetailRaw">原始记录：-</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块1-4: 实有人员与领导职数管理 ====== -->
+<div class="page" id="m1-4">
+  <div class="alert alert-info">通过模板导入和单条维护管理核定编制、实有在编、领导职数、编外人员，并永久保留变更日志。</div>
+  <div class="card staffing-dashboard">
+    <div class="card-header"><h3><span class="icon">👥</span>编制人员台账</h3><span class="extra">历年与当前数据台账</span></div>
+    <div class="field-grid">
+      <div class="field-box"><div class="name">核定编制</div><div class="val">1,286</div></div>
+      <div class="field-box"><div class="name">实有在编</div><div class="val">1,104</div></div>
+      <div class="field-box"><div class="name">编外人员</div><div class="val">96</div></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="showToast('Excel模板已导入')">📥 Excel模板导入</button><button class="btn btn-outline">单条新增</button><button class="btn btn-outline">批量修改</button></div>
+    <table style="margin-top:16px"><thead><tr><th>部门</th><th>核定编制</th><th>实有在编</th><th>使用率</th><th>领导职数</th><th>编外人员</th><th>最近异动</th></tr></thead><tbody>
+      <tr><td>市发改委</td><td>68</td><td>61</td><td>89.7%</td><td>8/8</td><td>4</td><td>调入 2 人</td></tr>
+      <tr><td>市卫健委</td><td>72</td><td>54</td><td><span style="color:var(--warning);font-weight:600">75.0%</span></td><td>7/8</td><td>9</td><td>退休 3 人</td></tr>
+      <tr><td>市城管局</td><td>83</td><td>78</td><td>94.0%</td><td>9/9</td><td>6</td><td>岗位调整 4 人</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📜</span>变更日志全留存</h3></div>
+    <div class="change-log">
+      <div class="log-item"><span>2026-07-16　市发改委新增人员异动记录：调入 2 人</span><span class="tag tag-info">系统留痕</span></div>
+      <div class="log-item"><span>2026-07-10　市卫健委更新领导职数占用情况</span><span class="tag tag-success">已确认</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块1-5: 部门核心职能清单库 ====== -->
+<div class="page" id="m1-5">
+  <div class="alert alert-info">从三定文本抽取法定职责，与部门上报履职事项比对，形成可量化评估的职能清单。</div>
+  <div class="card function-match">
+    <div class="card-header"><h3><span class="icon">🧠</span>NLP职责抽取与履职匹配</h3><span class="extra"><span class="ai-badge">NLP 自动抽取</span></span></div>
+    <div class="compare-grid">
+      <div class="compare-box"><h4>法定“三定”职责清单</h4><p>负责城市市容环境卫生、城市管理综合执法、户外广告设施管理、智慧城管平台建设等核心职责。</p></div>
+      <div class="compare-box"><h4>部门上报履职事项清单</h4><p>上报智慧城管平台建设、扬尘治理联合执法、户外广告审批协同等履职事项。</p></div>
+      <div class="match-score"><b>84%</b><span>职责匹配度</span><span class="tag tag-warning" style="margin-top:8px">新增职责未核定</span></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>部门</th><th>行业标签</th><th>覆盖率</th><th>匹配度</th><th>异常类型</th><th>处理建议</th></tr></thead><tbody>
+      <tr><td>市城管局</td><td>城市管理</td><td>88%</td><td>84%</td><td><span class="tag tag-warning">新增职责未核定</span></td><td>提交职责核定申请</td></tr>
+      <tr><td>市文旅局</td><td>文化旅游</td><td>79%</td><td>72%</td><td><span class="tag tag-danger">职责缺失</span></td><td>补录履职事项说明</td></tr>
+      <tr><td>市教育局</td><td>教育科技</td><td>96%</td><td>93%</td><td><span class="tag tag-success">正常</span></td><td>纳入指标评分</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块1-6: 历史评估档案电子化管理 ====== -->
+<div class="page" id="m1-6">
+  <div class="alert alert-info">对历年评估报告、自评材料、整改台账电子化归档，支持组合检索、全文检索和权限分级控制。</div>
+  <div class="card archive-search">
+    <div class="card-header"><h3><span class="icon">🗄️</span>历史评估档案检索</h3><span class="extra">按模板归档</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>年度</label><select><option>2026</option><option>2025</option><option>2024</option></select></div>
+      <div class="form-item"><label>评估类型</label><select><option>年度综合</option><option>专项评估</option><option>不定期评估</option></select></div>
+      <div class="form-item"><label>评估等级</label><select><option>全部</option><option>优秀</option><option>良好</option><option>合格</option></select></div>
+      <div class="form-item"><label>全文检索</label><input placeholder="输入部门、问题、整改关键词"></div>
+      <button class="btn btn-primary">🔍 检索</button>
+    </div>
+    <div class="archive-card"><span class="code-badge">DA-2026-001</span><div><b>市发改委年度综合评估档案</b><br><span style="color:var(--text-secondary)">评估报告、自评材料、整改台账、复核记录</span></div><span class="tag tag-info">授权可见</span></div>
+    <div class="archive-card"><span class="code-badge">DA-2025-019</span><div><b>市卫健委专项评估档案</b><br><span style="color:var(--text-secondary)">报告模板、佐证材料、历史整改记录</span></div><span class="tag tag-warning">部门级权限</span></div>
+  </div>
+</div>
+
+<!-- ====== 模块1-7: 四级指标架构初始化配置 ====== -->
+<div class="page" id="m1-7">
+  <div class="alert alert-info">依据“自治区机构编制执行情况和使用效益评估指标体系”初始化四层架构：评估对象类型 → 一级指标 → 二级指标 → 三级指标。共性指标满分 100 分，个性指标 20 分，总分 120 分。</div>
+  <div class="card indicator-matrix">
+    <div class="indicator-tree">
+      <h4>指标架构树</h4>
+      <div class="indicator-node active">对象：政府部门</div>
+      <div class="indicator-node">├─ 一级：履职尽责情况和相关效益 25%</div>
+      <div class="indicator-node">│　├─ 二级：权责清单实施情况</div>
+      <div class="indicator-node">│　└─ 三级：权责事项实际运行情况</div>
+      <div class="indicator-node">├─ 一级：“三定”规定执行情况 25%</div>
+      <div class="indicator-node">├─ 一级：机构配置效益 15%</div>
+      <div class="indicator-node">├─ 一级：编制和领导职数使用效益 20%</div>
+      <div class="indicator-node">├─ 一级：机构编制管理规范 15%</div>
+      <div class="indicator-node">└─ 一级：个性指标 20分</div>
+    </div>
+    <div>
+      <div class="card-header"><h3><span class="icon">🧩</span>指标体系初始化总览</h3><span class="extra">来源：3.2 自治区评估指标体系</span></div>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="k">党委单位</div><div class="v">6 / 12 / 22</div><div class="sub">一级 / 二级 / 三级指标</div></div>
+        <div class="feature-card"><div class="k">政府部门</div><div class="v">6 / 14 / 27</div><div class="sub">含权责清单、热点难点问题</div></div>
+        <div class="feature-card"><div class="k">直属事业单位</div><div class="v">6 / 12 / 23</div><div class="sub">突出服务对象满意度</div></div>
+      </div>
+      <table><thead><tr><th>一级指标</th><th>一级权重</th><th>初始化说明</th><th>指标类型</th></tr></thead><tbody>
+        <tr><td>1.履职尽责情况和相关效益</td><td>25%</td><td>评价党管机构编制原则落实、主责主业聚焦、协作履职、社会评价等。</td><td><span class="tag tag-info">共性</span></td></tr>
+        <tr><td>2.“三定”规定执行情况</td><td>25%</td><td>评价是否按“三定”规定履职、设置机构、配备人员和领导职数。</td><td><span class="tag tag-info">共性</span></td></tr>
+        <tr><td>3.机构配置效益</td><td>15%</td><td>评价内设机构职责划分、机构之间衔接顺畅和内部运行效益。</td><td><span class="tag tag-info">共性</span></td></tr>
+        <tr><td>4.编制和领导职数使用效益</td><td>20%</td><td>评价编制使用率、在编人员在岗、人员借调、工作量与编制资源匹配。</td><td><span class="tag tag-info">共性</span></td></tr>
+        <tr><td>5.机构编制管理规范</td><td>15%</td><td>评价机构编制报告、备案、统计、实名制管理及违规问题整改。</td><td><span class="tag tag-info">共性</span></td></tr>
+        <tr><td>6.个性指标</td><td>20分</td><td>由各试点部门或单位结合实际合理确定，作为差异化评价补充。</td><td><span class="tag tag-warning">个性</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📐</span>评分公式与样例指标</h3><span class="extra">用于 AI 评估模块计算依据</span></div>
+    <div class="alert alert-success">实际得分 = ∑（三级指标分值 × 三级指标权重 × 所在二级指标权重 × 所在一级指标权重）。评估时间段为近 5 年，个别指标按表内标准另行规定。</div>
+    <div class="table-scroll"><table><thead><tr><th>对象类型</th><th>一级指标</th><th>二级指标</th><th>三级指标</th><th>评估方式和扣分规则示例</th><th>权重链路</th></tr></thead><tbody>
+      <tr><td>政府部门</td><td>履职尽责情况和相关效益</td><td>权责清单实施情况</td><td>权责事项实际运行情况</td><td>查阅近5年权责事项运行情况；5年内累计不超过3次且因不作为或效率低下导致的，每项扣25分，100分扣完。</td><td>25% × 20% × 50%</td></tr>
+      <tr><td>政府部门 / 党委单位 / 直属事业单位</td><td>“三定”规定执行情况</td><td>按照“三定”规定设置机构</td><td>机构实际设置情况</td><td>核查内设机构名称、数量、规格、挂牌、派驻机构等是否与“三定”一致；存在一种情况扣25分。</td><td>25% × 35/40% × 50/60%</td></tr>
+      <tr><td>三类对象通用</td><td>编制和领导职数使用效益</td><td>编制使用情况</td><td>编制使用率</td><td>编制使用率=编制使用数/核定数；85%-95%扣25分，75%-85%扣50分，60%-75%扣75分，≤60%扣100分。</td><td>20% × 50% × 30/40/50%</td></tr>
+      <tr><td>三类对象通用</td><td>机构编制管理规范</td><td>机构编制违规违纪违法问题及整改情况</td><td>问题整改情况</td><td>未整改扣100分；有计划但进展慢扣60分；取得初步成效扣20分；完成整改不扣分。</td><td>15% × 50% × 50%</td></tr>
+    </tbody></table></div>
+  </div>
+</div>
+
+<!-- ====== 模块1-8: 指标动态管理功能 ====== -->
+<div class="page" id="m1-8">
+  <div class="alert alert-info">支持按年度、行业类别复制修改新增指标，在线调整权重并可视化配置阈值扣分、阶梯打分、一票否决项。</div>
+  <div class="card rule-builder">
+    <div class="card-header"><h3><span class="icon">⚙️</span>指标权重与评分规则配置</h3><span class="extra">年度 / 行业复制</span></div>
+    <div class="form-row">
+      <div class="form-item"><label>年度</label><select><option>2026年度</option><option>复制2025年度</option></select></div>
+      <div class="form-item"><label>行业类别</label><select><option>行政部门通用</option><option>教育行业</option><option>卫生健康</option></select></div>
+      <div class="form-item"><label>模板来源</label><select><option>上一年度指标复制</option><option>行业模板导入</option></select></div>
+    </div>
+    <div class="weight-row"><b>履职效能</b><div class="weight-track"><div class="weight-fill" style="width:35%"></div></div><span>35%</span></div>
+    <div class="weight-row"><b>编制管理</b><div class="weight-track"><div class="weight-fill" style="width:30%"></div></div><span>30%</span></div>
+    <div class="weight-row"><b>社会评价</b><div class="weight-track"><div class="weight-fill" style="width:20%"></div></div><span>20%</span></div>
+    <div class="rule-grid">
+      <div class="rule-card"><h4>阈值扣分</h4><p>编制使用率低于 60% 自动扣 4 分，低于 50% 触发预警。</p><span class="tag tag-warning">已启用</span></div>
+      <div class="rule-card"><h4>阶梯打分</h4><p>满意度 ≥90 得满分，80-89 得 80%，低于 80 触发扣分。</p><span class="tag tag-info">可编辑</span></div>
+      <div class="rule-card"><h4>一票否决</h4><p>超编进人、擅自设立机构等红线问题直接标记不合格。</p><span class="tag tag-danger">重点项</span></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="showToast('指标规则已保存')">保存配置</button><button class="btn btn-outline">新增指标</button></div>
+  </div>
+</div>
+
+<!-- ====== 模块1-9: 指标模板库管理 ====== -->
+<div class="page" id="m1-9">
+  <div class="alert alert-info">管理内置指标模板和自定义模板，支持一键导入并自动匹配被评估部门。</div>
+  <div class="template-library">
+    <div class="template-card">
+      <h4>行政部门通用模板</h4>
+      <p>适用于市直行政机关，内置 42 项指标，自动匹配发改、财政、城管等部门。</p>
+      <span class="tag tag-info">匹配 38 个部门</span>
+      <div class="btn-group"><button class="btn btn-sm btn-primary" onclick="showToast('行政部门通用模板已导入')">一键导入</button><button class="btn btn-sm btn-outline">预览</button></div>
+    </div>
+    <div class="template-card">
+      <h4>事业单位服务模板</h4>
+      <p>适用于公益一类、公益二类事业单位，突出服务质量、资源效益和社会评价。</p>
+      <span class="tag tag-success">36 项指标</span>
+      <div class="btn-group"><button class="btn btn-sm btn-primary" onclick="showToast('事业单位模板已导入')">一键导入</button><button class="btn btn-sm btn-outline">预览</button></div>
+    </div>
+    <div class="template-card">
+      <h4>自定义模板</h4>
+      <p>用户可保存当前指标组合，复用于专项评估或机构调整后绩效评估。</p>
+      <span class="tag tag-warning">5 个草稿</span>
+      <div class="btn-group"><button class="btn btn-sm btn-primary">新建模板</button><button class="btn btn-sm btn-outline" onclick="showToast('当前配置已保存为模板')">保存复用</button></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ====== 模块2-1: 协作关系自动匹配 ====== -->
+<div class="page" id="m2-1">
+  <div class="alert alert-info">根据三定协作关系和历史协同数据自动生成对口评价关系网，支持人工核验和关系调整。</div>
+  <div class="card relation-map">
+    <div class="card-header"><h3><span class="icon">🔗</span>协作关系网</h3><span class="extra">横向协同评价</span></div>
+    <div class="network-grid">
+      <div class="network-card">
+        <h4>协作关系摘要</h4>
+        <div class="network-node center">市发改委</div>
+        <div class="network-node">→ 市财政局 / 重大项目资金统筹</div>
+        <div class="network-node">→ 市教育局 / 校园建设协调</div>
+        <div class="network-node">→ 市人社局 / 重点项目用工协同</div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="showToast('关系网已重新匹配')">重新匹配</button><button class="btn btn-outline">人工核验</button></div>
+      </div>
+      <div>
+        <table><thead><tr><th>对口部门</th><th>协作事项</th><th>来源</th><th>置信度</th><th>状态</th></tr></thead><tbody>
+          <tr><td>市发改委 → 市财政局</td><td>重大项目资金统筹</td><td>三定文本</td><td>93%</td><td><span class="tag tag-success">已确认</span></td></tr>
+          <tr><td>市城管局 → 市生态环境局</td><td>扬尘治理联合执法</td><td>历史协同</td><td>81%</td><td><span class="tag tag-warning">待核验</span></td></tr>
+          <tr><td>市教育局 → 市人社局</td><td>教师队伍管理</td><td>人工补录</td><td>76%</td><td><span class="tag tag-info">待调整</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🧭</span>人工核验与关系调整</h3><span class="extra">部门关系闭环</span></div>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="k">待核验关系</div><div class="v">18</div><div class="sub">来自历史协同记录</div></div>
+      <div class="feature-card"><div class="k">人工调整</div><div class="v">6</div><div class="sub">新增 3 条 / 移除 3 条</div></div>
+      <div class="feature-card"><div class="k">平均置信度</div><div class="v">84%</div><div class="sub">低于 75% 进入复核</div></div>
+    </div>
+    <table><thead><tr><th>调整项</th><th>调整原因</th><th>核验人</th><th>核验意见</th><th>更新时间</th></tr></thead><tbody>
+      <tr><td>市城管局 → 市生态环境局</td><td>协同事项频次高于阈值</td><td>李科长</td><td>纳入本轮评价对象</td><td>2026-07-16 09:40</td></tr>
+      <tr><td>市文旅局 → 市教育局</td><td>三定文本未直接引用</td><td>王主任</td><td>暂不推送问卷</td><td>2026-07-15 16:20</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-2: 评价问卷管理/推送 ====== -->
+<div class="page" id="m2-2">
+  <div class="alert alert-info">按评价任务批次配置和推送问卷，包含四维度打分、文字备注和推送状态。</div>
+  <div class="card questionnaire-builder">
+    <div class="card-header"><h3><span class="icon">📨</span>问卷批次与推送</h3><span class="extra">任务批次配置</span></div>
+    <div class="questionnaire-panel">
+      <div class="network-card">
+        <h4>批次信息</h4>
+        <div class="network-node">2026年度横向协同评价</div>
+        <div class="network-node">推送对象：协作单位经办人 + 负责人</div>
+        <div class="network-node">截止时间：2026-08-20</div>
+        <div class="network-node">问卷状态：待批量推送</div>
+      </div>
+      <div>
+        <div class="dimension-grid">
+          <div class="dimension-card"><strong>履职响应时效</strong><div class="scale">★★★★☆</div><span class="tag tag-info">1-5 分</span></div>
+          <div class="dimension-card"><strong>业务配合度</strong><div class="scale">★★★★★</div><span class="tag tag-info">1-5 分</span></div>
+          <div class="dimension-card"><strong>职责边界清晰度</strong><div class="scale">★★★★☆</div><span class="tag tag-warning">文字备注</span></div>
+          <div class="dimension-card"><strong>联合工作成效</strong><div class="scale">★★★★☆</div><span class="tag tag-warning">文字备注</span></div>
+        </div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="showToast('问卷已批量推送')">批量推送</button><button class="btn btn-outline">预览问卷</button><button class="btn btn-outline">推送日志</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📝</span>问卷题目预览</h3><span class="extra">四维度 1-5 分制</span></div>
+    <div class="score-grid">
+      <div class="score-box"><b>协同响应</b><div class="stars">1 2 3 4 5</div><p style="color:var(--text-secondary);font-size:12px;margin-top:8px">是否按约定时限响应协作请求。</p></div>
+      <div class="score-box"><b>材料质量</b><div class="stars">1 2 3 4 5</div><p style="color:var(--text-secondary);font-size:12px;margin-top:8px">是否一次性提供完整、可核验材料。</p></div>
+      <div class="score-box"><b>职责边界</b><div class="stars">1 2 3 4 5</div><p style="color:var(--text-secondary);font-size:12px;margin-top:8px">是否存在推诿、边界不清或重复办理。</p></div>
+      <div class="score-box"><b>协同成效</b><div class="stars">1 2 3 4 5</div><p style="color:var(--text-secondary);font-size:12px;margin-top:8px">是否形成明确结果和可追溯台账。</p></div>
+    </div>
+    <table><thead><tr><th>推送对象</th><th>手机号脱敏</th><th>推送方式</th><th>送达状态</th><th>填写状态</th></tr></thead><tbody>
+      <tr><td>市财政局项目科</td><td>139****7712</td><td>站内信 + 短信</td><td><span class="tag tag-success">已送达</span></td><td><span class="tag tag-info">填写中</span></td></tr>
+      <tr><td>市人社局就业科</td><td>138****4501</td><td>站内信</td><td><span class="tag tag-success">已送达</span></td><td><span class="tag tag-warning">未填写</span></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-3: 批量匿名评价支持 ====== -->
+<div class="page" id="m2-3">
+  <div class="alert alert-info">被评部门在评价端脱敏显示，后台汇总后再还原归属，支持批量匿名提交。</div>
+  <div class="card anonymous-console">
+    <div class="card-header"><h3><span class="icon">🕶️</span>匿名评价控制台</h3><span class="extra">去标识与还原管理</span></div>
+    <div class="mask-grid">
+      <div class="mask-card"><div class="mask-code">BM-A19</div><div>行业代码：JJ-03</div><div class="tag tag-info" style="margin-top:10px">脱敏展示</div></div>
+      <div class="mask-card"><div class="mask-code">BM-C27</div><div>行业代码：CS-08</div><div class="tag tag-warning" style="margin-top:10px">待提交</div></div>
+      <div class="mask-card"><div class="mask-code">BM-R05</div><div>行业代码：GL-11</div><div class="tag tag-success" style="margin-top:10px">已提交</div></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>匿名批次</th><th>脱敏编号</th><th>匿名规则</th><th>后台还原</th><th>状态</th></tr></thead><tbody>
+      <tr><td>第 01 批</td><td>BM-A19</td><td>部门名称隐藏</td><td>授权管理员可见</td><td><span class="tag tag-info">全程留痕</span></td></tr>
+      <tr><td>第 02 批</td><td>BM-C27</td><td>随机编号替代</td><td>汇总后还原</td><td><span class="tag tag-warning">待提交</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🔁</span>匿名提交与后台还原流程</h3><span class="extra">前端脱敏 / 后台授权</span></div>
+    <div class="flow-steps">
+      <div class="flow-step"><b>1. 生成批次</b><span>系统按评价任务生成匿名编号池。</span></div>
+      <div class="flow-step"><b>2. 前端脱敏</b><span>被评部门以 BM 编号显示，隐藏真实名称。</span></div>
+      <div class="flow-step"><b>3. 批量提交</b><span>评价人可一次提交多部门评价。</span></div>
+      <div class="flow-step"><b>4. 授权还原</b><span>汇总分析后由管理员授权查看原始映射。</span></div>
+    </div>
+    <div class="version-list">
+      <div class="version-item"><span><span class="code-badge">MAP-2026-07-A</span> 编号映射表已加密存储，仅统计汇总页可引用。</span><span class="tag tag-success">生效中</span></div>
+      <div class="version-item"><span><span class="code-badge">SUBMIT-02</span> 第 02 批匿名提交开放至 2026-08-01 18:00。</span><span class="tag tag-warning">开放中</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块2-4: 异常评分AI标记预警 ====== -->
+<div class="page" id="m2-4">
+  <div class="alert alert-info">对评分进行统计离群值检测，偏离均值±2倍标准差时标记异常评分。</div>
+  <div class="card outlier-review">
+    <div class="card-header"><h3><span class="icon">📈</span>异常评分复核台</h3><span class="extra">AI 离群检测</span></div>
+    <div class="sigma-grid">
+      <div class="sigma-card"><div>均值</div><div class="sigma-value">4.1</div><span class="tag tag-info">样本 2480 条</span></div>
+      <div class="sigma-card"><div>标准差</div><div class="sigma-value">0.62</div><span class="tag tag-warning">±2σ 预警</span></div>
+      <div class="sigma-card danger"><div>异常评分</div><div class="sigma-value">31</div><span class="tag tag-danger">需复核</span></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>部门</th><th>评分维度</th><th>本次评分</th><th>偏离情况</th><th>AI标记</th><th>操作</th></tr></thead><tbody>
+      <tr><td>市城管局</td><td>联合工作成效</td><td>1.8</td><td>-2.4σ</td><td><span class="tag tag-danger">异常</span></td><td><button class="btn btn-sm btn-primary">复核采纳</button></td></tr>
+      <tr><td>市教育局</td><td>响应时效</td><td>4.8</td><td>+0.7σ</td><td><span class="tag tag-success">正常</span></td><td><button class="btn btn-sm btn-outline">查看</button></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🧪</span>AI 复核建议</h3><span class="extra">均值 / 标准差 / 历史分布</span></div>
+    <div class="compare-grid">
+      <div class="compare-box"><h4>样本分布</h4><p>同一评价维度近三年平均分 4.0，当前批次均值 4.1。低于 2.86 分或高于 5.34 分的记录进入异常队列。</p></div>
+      <div class="compare-box"><h4>复核规则</h4><p>连续低分、同一评价人多部门极端评分、同批次评分离散度异常时，系统建议管理员二次确认。</p></div>
+      <div class="match-score"><b>31</b><span>条待复核</span><button class="btn btn-sm btn-primary" style="margin-top:12px" onclick="showToast('异常评分复核任务已分派')">分派复核</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块2-5: 评价任务分类管理 ====== -->
+<div class="page" id="m2-5">
+  <div class="alert alert-info">支持专项履职评估、年度综合评估、机构调整后绩效评估三类任务独立配置模板和流程。</div>
+  <div class="card task-board">
+    <div class="card-header"><h3><span class="icon">🗂️</span>三类任务配置板</h3><span class="extra">任务模板切换</span></div>
+    <div class="task-type-grid">
+      <div class="task-type-card"><h4>专项履职评估</h4><p>针对特定事项和重点任务，独立模板、独立流程。</p><span class="tag tag-info">进行中 2</span></div>
+      <div class="task-type-card"><h4>年度综合评估</h4><p>全部门全指标统一评估，适合作为主任务批次。</p><span class="tag tag-success">进行中 5</span></div>
+      <div class="task-type-card"><h4>机构调整后绩效评估</h4><p>改革后跟踪和效果评价，突出对比与修正。</p><span class="tag tag-warning">待启动 1</span></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>任务名称</th><th>任务类型</th><th>模板</th><th>参与部门</th><th>流程状态</th></tr></thead><tbody>
+      <tr><td>2026年度综合评估</td><td>年度综合</td><td>行政部门通用模板</td><td>42</td><td><span class="tag tag-info">进行中</span></td></tr>
+      <tr><td>机构调整后跟踪</td><td>调整后绩效</td><td>改革专项模板</td><td>9</td><td><span class="tag tag-success">已建流程</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🧩</span>模板流程配置</h3><span class="extra">任务类型独立流程</span></div>
+    <div class="step-strip">
+      <div class="step-card"><b>任务范围</b><span>选择全市部门、行业条线或机构调整涉及单位。</span></div>
+      <div class="step-card"><b>评价对象</b><span>按部门、事项、职责清单自动带出参评对象。</span></div>
+      <div class="step-card"><b>评分模板</b><span>绑定共性指标、个性指标和否决项规则。</span></div>
+      <div class="step-card"><b>发布留痕</b><span>记录创建人、发布时间、调整原因和版本号。</span></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="showToast('评价任务模板已保存')">保存流程模板</button><button class="btn btn-outline">复制年度任务</button><button class="btn btn-outline">查看版本</button></div>
+  </div>
+</div>
+
+<!-- ====== 模块2-6: 编办在线打分评价 ====== -->
+<div class="page" id="m2-6">
+  <div class="alert alert-info">编办评估人员逐项打分，左侧看指标，右侧填分值、扣加分依据和佐证材料。</div>
+  <div class="card scoring-workbench">
+    <div class="card-header"><h3><span class="icon">✍️</span>在线打分工作台</h3><span class="extra">逐项留痕</span></div>
+    <div class="scoring-grid">
+      <div class="indicator-list">
+        <div class="indicator-pill active">重点任务按期完成率</div>
+        <div class="indicator-pill">职责边界清晰度</div>
+        <div class="indicator-pill">现场检查照片</div>
+        <div class="indicator-pill">督查记录</div>
+      </div>
+      <div class="score-editor">
+        <div class="field-grid">
+          <div class="field-box"><div class="name">标准分</div><div class="val">8</div></div>
+          <div class="field-box"><div class="name">本次得分</div><div class="val">7.5</div></div>
+          <div class="field-box"><div class="name">扣分依据</div><div class="val">延迟 1 天</div></div>
+        </div>
+        <div class="file-upload"><div class="icon">📎</div><div class="tip">上传台账截图、现场照片、督查记录等佐证材料</div></div>
+        <div class="btn-group"><button class="btn btn-primary" onclick="showToast('打分已保存')">保存打分</button><button class="btn btn-outline">提交复核</button><button class="btn btn-outline">查看留痕</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🧾</span>扣加分依据与操作留痕</h3><span class="extra">逐项可追溯</span></div>
+    <div class="timeline">
+      <div class="timeline-item"><div class="time">2026-07-16 11:15</div><div class="text"><strong>张主任</strong> 对“重点任务按期完成率”录入得分 7.5，扣分依据：延迟 1 天提交佐证材料。</div></div>
+      <div class="timeline-item"><div class="time">2026-07-16 10:30</div><div class="text"><strong>系统</strong> 自动关联台账截图 2 张、督查记录 1 份，材料完整性为 80%。</div></div>
+      <div class="timeline-item"><div class="time">2026-07-15 17:40</div><div class="text"><strong>李科长</strong> 上传现场检查照片并提交复核。</div></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>指标项</th><th>标准分</th><th>录入分</th><th>依据类型</th><th>材料数量</th><th>复核状态</th></tr></thead><tbody>
+      <tr><td>重点任务按期完成率</td><td>8</td><td>7.5</td><td>扣分</td><td>3</td><td><span class="tag tag-info">待复核</span></td></tr>
+      <tr><td>职责边界清晰度</td><td>6</td><td>6.0</td><td>无扣分</td><td>2</td><td><span class="tag tag-success">已确认</span></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-7: 绩效考核数据管理 ====== -->
+<div class="page" id="m2-7">
+  <div class="alert alert-info">通过接口对接市委组织部年度绩效考核结果，自动拉取并映射到绩效维度评分项。</div>
+  <div class="card performance-sync">
+    <div class="card-header"><h3><span class="icon">🔄</span>组织部数据同步面板</h3><span class="extra">同步与映射</span></div>
+    <div class="sync-pipeline">
+      <div class="sync-step"><b>1. 拉取绩效结果</b><span>年度绩效等次、重点工作得分、班子考核评价</span></div>
+      <div class="sync-step"><b>2. 字段映射</b><span>同步到绩效维度评分项</span></div>
+      <div class="sync-step"><b>3. 自动校验</b><span>检查缺失字段和异常值</span></div>
+      <div class="sync-step"><b>4. 同步确认</b><span>输出待复核记录</span></div>
+    </div>
+    <div class="source-grid">
+      <div class="feature-card"><div class="k">同步部门</div><div class="v">42</div></div>
+      <div class="feature-card"><div class="k">映射字段</div><div class="v">18</div></div>
+      <div class="feature-card"><div class="k">同步批次</div><div class="v">2026-07</div></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>部门</th><th>绩效等次</th><th>重点工作得分</th><th>班子评价</th><th>状态</th></tr></thead><tbody>
+      <tr><td>市财政局</td><td>A</td><td>94.5</td><td>优秀</td><td><span class="tag tag-success">已同步</span></td></tr>
+      <tr><td>市文旅局</td><td>B</td><td>82.0</td><td>良好</td><td><span class="tag tag-info">待确认</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🔗</span>字段映射明细</h3><span class="extra">组织部来源字段 → 平台指标字段</span></div>
+    <div class="version-list">
+      <div class="map-row"><span>年度绩效等次</span><span>→</span><span>绩效评价基础分</span><span class="tag tag-success">已映射</span></div>
+      <div class="map-row"><span>重点工作得分</span><span>→</span><span>重大任务落实得分</span><span class="tag tag-success">已映射</span></div>
+      <div class="map-row"><span>班子运行评价</span><span>→</span><span>干部队伍效能参考项</span><span class="tag tag-warning">待确认</span></div>
+    </div>
+    <div class="btn-group"><button class="btn btn-primary" onclick="showToast('组织部绩效数据已重新同步')">重新同步</button><button class="btn btn-outline">下载校验报告</button></div>
+  </div>
+</div>
+
+<!-- ====== 模块2-8: 组织部二次修正评价 ====== -->
+<div class="page" id="m2-8">
+  <div class="alert alert-info">组织部可对履职担当、干部队伍效能、重大任务落实情况进行复核修正，修正记录全程留痕。</div>
+  <div class="card correction-compare">
+    <div class="card-header"><h3><span class="icon">🛠️</span>修正对比页</h3><span class="extra">同步分 / 修正分</span></div>
+    <div class="correction-grid">
+      <div class="score-compare"><div>原同步分</div><div class="big">86</div><p>市交通运输局：重大任务落实待补充证明。</p></div>
+      <div class="score-compare"><div>修正分</div><div class="big">88</div><p>补充省级重点项目完成证明后修正。</p></div>
+    </div>
+    <div class="change-log" style="margin-top:16px">
+      <div class="log-item"><span>2026-07-16 10:30　组织部王处长修正市交通运输局绩效联动分</span><span class="tag tag-success">已修正</span></div>
+      <div class="log-item"><span>2026-07-15 15:20　市城管局待确认修正原因</span><span class="tag tag-warning">待确认</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📌</span>修正原因与覆盖标识</h3><span class="extra">只覆盖绩效联动分</span></div>
+    <table><thead><tr><th>部门</th><th>同步分</th><th>修正分</th><th>修正原因</th><th>覆盖范围</th><th>状态</th></tr></thead><tbody>
+      <tr><td>市交通运输局</td><td>86</td><td>88</td><td>补充重大项目证明材料</td><td>组织部绩效维度</td><td><span class="tag tag-success">已覆盖</span></td></tr>
+      <tr><td>市城管局</td><td>82</td><td>待定</td><td>需确认专项整治结果</td><td>暂不覆盖</td><td><span class="tag tag-warning">待确认</span></td></tr>
+    </tbody></table>
+    <div class="alert alert-warning" style="margin-top:16px">修正分保留原同步分和修正依据，进入综合得分时显示“组织部修正”标识，便于追溯来源。</div>
+  </div>
+</div>
+
+<!-- ====== 模块2-9: 政务服务网评价入口 ====== -->
+<div class="page" id="m2-9">
+  <div class="alert alert-info">面向办事企业和群众开放评价入口，支持匿名或实名提交、星级评分和图片佐证。</div>
+  <div class="portal-shell public-portal">
+    <div class="portal-header">
+      <h3 style="margin-bottom:8px">政务服务评价入口</h3>
+      <div>办事便捷度、服务态度、办结时效、政策告知清晰度四项打分</div>
+    </div>
+    <div class="portal-form">
+      <div class="score-grid">
+        <div class="score-box">办事便捷度<div class="stars">★★★★☆</div></div>
+        <div class="score-box">服务态度<div class="stars">★★★★★</div></div>
+        <div class="score-box">办结时效<div class="stars">★★★★☆</div></div>
+        <div class="score-box">政策告知清晰度<div class="stars">★★★☆☆</div></div>
+      </div>
+      <div class="form-item"><label>文字意见</label><textarea>办理流程整体清晰，窗口人员态度较好，希望进一步压缩材料流转时间。</textarea></div>
+      <div class="file-upload" style="margin-top:12px"><div class="icon">🖼️</div><div class="tip">上传图片佐证，支持匿名或实名提交</div></div>
+      <div class="btn-group"><button class="btn btn-primary" onclick="showToast('群众评价已提交')">提交评价</button><button class="btn btn-outline">匿名提交</button><button class="btn btn-outline">查看历史评价</button></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><h3><span class="icon">📣</span>入口配置</h3><span class="extra">对外评价渠道</span></div>
+      <div class="field-grid">
+        <div class="field-box"><div class="name">当前入口</div><div class="val">政务服务网</div></div>
+        <div class="field-box"><div class="name">提交方式</div><div class="val">实名 / 匿名</div></div>
+        <div class="field-box"><div class="name">佐证材料</div><div class="val">图片 3 张</div></div>
+      </div>
+      <table><thead><tr><th>评价对象</th><th>服务事项</th><th>评价星级</th><th>文字意见</th><th>归集状态</th></tr></thead><tbody>
+        <tr><td>市政务服务中心</td><td>企业开办</td><td>★★★★★</td><td>流程清晰，窗口响应快</td><td><span class="tag tag-success">已归集</span></td></tr>
+        <tr><td>市医保局窗口</td><td>异地就医备案</td><td>★★★☆☆</td><td>材料说明需更清楚</td><td><span class="tag tag-info">待分析</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块2-10: 评价数据管理 ====== -->
+<div class="page" id="m2-10">
+  <div class="alert alert-info">评价人隐私保护与脱敏处理，详情仅编办授权人员可查看原始数据。</div>
+  <div class="card privacy-ledger">
+    <div class="card-header"><h3><span class="icon">🔐</span>隐私脱敏台账</h3><span class="extra">字段脱敏 / 权限控制</span></div>
+    <div class="privacy-grid">
+      <div>
+        <div class="privacy-rule"><b>姓名</b><br>显示为张**、李** 等脱敏形式</div>
+        <div class="privacy-rule"><b>手机号</b><br>显示为 138****1234</div>
+        <div class="privacy-rule"><b>身份证号</b><br>仅保留前后位</div>
+      </div>
+      <div>
+        <table><thead><tr><th>评价编号</th><th>评价人</th><th>手机号</th><th>评价对象</th><th>权限状态</th></tr></thead><tbody>
+          <tr><td>PJ-2026-1182</td><td>张**</td><td>138****1234</td><td>市教育局</td><td><span class="tag tag-success">脱敏展示</span></td></tr>
+          <tr><td>PJ-2026-1190</td><td>匿名用户</td><td>-</td><td>市卫健委</td><td><span class="tag tag-info">匿名</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">👁️</span>授权查看与审计</h3><span class="extra">原始数据最小可见</span></div>
+    <div class="field-grid">
+      <div class="field-box"><div class="name">授权角色</div><div class="val">3 类</div></div>
+      <div class="field-box"><div class="name">今日查看</div><div class="val">12 次</div></div>
+      <div class="field-box"><div class="name">敏感字段</div><div class="val">5 项</div></div>
+    </div>
+    <table><thead><tr><th>申请人</th><th>查看原因</th><th>授权字段</th><th>审批状态</th><th>审计记录</th></tr></thead><tbody>
+      <tr><td>编办数据管理员</td><td>异常评价核验</td><td>姓名、手机号、评价原文</td><td><span class="tag tag-success">已授权</span></td><td>已写入日志</td></tr>
+      <tr><td>业务处室经办人</td><td>群众意见回访</td><td>手机号</td><td><span class="tag tag-warning">待审批</span></td><td>未查看</td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-11: 12345热线/政务平台评价自动归集 ====== -->
+<div class="page" id="m2-11">
+  <div class="alert alert-info">RPA 定期抓取 12345 热线和政务服务好差评数据，经脱敏和 NLP 情感分析后自动归集。</div>
+  <div class="card rpa-pipeline">
+    <div class="card-header"><h3><span class="icon">🤖</span>自动归集流水线</h3><span class="extra">抓取 / 脱敏 / 情感分析</span></div>
+    <div class="pipeline-line">
+      <div class="pipeline-node"><b>RPA抓取</b><span>每周定时执行</span></div>
+      <div class="pipeline-node"><b>脱敏处理</b><span>手机号、身份证号自动掩码</span></div>
+      <div class="pipeline-node"><b>NLP分析</b><span>提取正向、负向倾向</span></div>
+      <div class="pipeline-node"><b>满意度换算</b><span>归集到评分台账</span></div>
+    </div>
+    <div class="source-grid">
+      <div class="feature-card"><div class="k">抓取任务</div><div class="v">15</div></div>
+      <div class="feature-card"><div class="k">有效评价</div><div class="v">4422</div></div>
+      <div class="feature-card"><div class="k">负向线索</div><div class="v">130</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📊</span>来源统计与归集结果</h3><span class="extra">热线 / 好差评 / 政务平台</span></div>
+    <table><thead><tr><th>数据来源</th><th>抓取频率</th><th>本周新增</th><th>脱敏成功率</th><th>NLP 情感</th><th>归集状态</th></tr></thead><tbody>
+      <tr><td>12345 热线</td><td>每日 02:00</td><td>1280</td><td>99.6%</td><td>负向 9.8%</td><td><span class="tag tag-success">已归集</span></td></tr>
+      <tr><td>政务服务好差评</td><td>每周一</td><td>3142</td><td>99.8%</td><td>正向 87.2%</td><td><span class="tag tag-info">分析中</span></td></tr>
+      <tr><td>政务平台留言</td><td>每日 03:00</td><td>426</td><td>98.9%</td><td>中性 62.4%</td><td><span class="tag tag-warning">待复核</span></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-12: 自评任务管理 ====== -->
+<div class="page" id="m2-12">
+  <div class="alert alert-info">按评估批次自动下发自评任务，逐项自评打分并提交 AI 初审队列。</div>
+  <div class="card self-review-board">
+    <div class="card-header"><h3><span class="icon">📋</span>自评任务看板</h3><span class="extra">下发 / 填报 / 初审</span></div>
+    <div class="self-board-grid">
+      <div class="self-card"><div>下发任务</div><div class="num">42</div></div>
+      <div class="self-card"><div>已提交</div><div class="num">31</div></div>
+      <div class="self-card"><div>待初审</div><div class="num">18</div></div>
+      <div class="self-card"><div>待催报</div><div class="num">6</div></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>任务批次</th><th>部门</th><th>自评分</th><th>履职说明</th><th>AI初审</th></tr></thead><tbody>
+      <tr><td>2026年度综合评估</td><td>市发改委</td><td>91.5</td><td>已填报</td><td><span class="tag tag-info">排队中</span></td></tr>
+      <tr><td>2026年度综合评估</td><td>市财政局</td><td>94.0</td><td>已填报</td><td><span class="tag tag-success">通过</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">⏱️</span>填报进度与催报动作</h3><span class="extra">批次跟踪</span></div>
+    <div class="version-list">
+      <div class="version-item"><span>市卫健委：已完成 12/18 项自评，缺少 3 项履职说明。</span><span><span class="tag tag-warning">需催报</span> <button class="btn btn-sm btn-outline" onclick="showToast('催报提醒已发送')">发送提醒</button></span></div>
+      <div class="version-item"><span>市财政局：已提交全部自评材料，AI 初审通过率 96%。</span><span class="tag tag-success">可复核</span></div>
+      <div class="version-item"><span>市城管局：自评分高于历史均值 12 分，进入 AI 初审队列。</span><span class="tag tag-info">待初审</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块2-13: 佐证材料批量上传与分类管理 ====== -->
+<div class="page" id="m2-13">
+  <div class="alert alert-info">按指标项批量上传 PDF、Word、图片、Excel，系统按指标编码自动归类。</div>
+  <div class="card evidence-cabinet">
+    <div class="card-header"><h3><span class="icon">📎</span>材料库 / 文件柜</h3><span class="extra">上传区 / 版本替换</span></div>
+    <div class="cabinet-grid">
+      <div class="folder-list">
+        <div class="folder-item active">ZB-01-02-03 重点任务完成</div>
+        <div class="folder-item">ZB-03-01-01 好差评统计</div>
+        <div class="folder-item">ZB-04-02-05 现场检查</div>
+      </div>
+      <div>
+        <div class="file-upload"><div class="icon">📁</div><div class="tip">点击或拖拽上传材料，支持 PDF、Word、图片、Excel 等格式</div></div>
+        <div style="margin-top:16px">
+          <div class="file-row"><span class="code-badge">V2</span><span>重点任务完成情况说明.pdf</span><span class="tag tag-info">预览</span><button class="btn btn-sm btn-outline">替换</button></div>
+          <div class="file-row"><span class="code-badge">V1</span><span>好差评统计表.xlsx</span><span class="tag tag-success">已归类</span><button class="btn btn-sm btn-outline">下载</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🗄️</span>材料版本与分类规则</h3><span class="extra">指标编码自动归档</span></div>
+    <table><thead><tr><th>指标编码</th><th>材料名称</th><th>识别来源</th><th>版本</th><th>归类结果</th><th>操作</th></tr></thead><tbody>
+      <tr><td><span class="code-badge">ZB-01-02-03</span></td><td>重点任务完成情况说明.pdf</td><td>文件名 + OCR</td><td>V2</td><td><span class="tag tag-success">自动归档</span></td><td><button class="btn btn-sm btn-outline">预览</button></td></tr>
+      <tr><td><span class="code-badge">ZB-03-01-01</span></td><td>好差评统计表.xlsx</td><td>表格字段</td><td>V1</td><td><span class="tag tag-info">待确认</span></td><td><button class="btn btn-sm btn-primary" onclick="showToast('材料分类已确认')">确认</button></td></tr>
+      <tr><td><span class="code-badge">ZB-04-02-05</span></td><td>现场检查照片.zip</td><td>人工选择</td><td>V3</td><td><span class="tag tag-warning">需替换</span></td><td><button class="btn btn-sm btn-outline">替换</button></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- ====== 模块2-14: 自评材料AI预警管理 ====== -->
+<div class="page" id="m2-14">
+  <div class="alert alert-info">AI 检查每个指标项必需佐证材料，识别缺项并触发补充提示。</div>
+  <div class="card material-alert-center">
+    <div class="card-header"><h3><span class="icon">🚨</span>材料完整性预警中心</h3><span class="extra">缺项规则 / 提醒渠道</span></div>
+    <div class="alert-grid">
+      <div class="alert-rule danger"><b>缺项材料</b><p>缺少会议纪要和制度文件时自动标红。</p><span class="tag tag-danger">高风险</span></div>
+      <div class="alert-rule warning"><b>命名不规范</b><p>文件命名未按指标编码规则统一命名。</p><span class="tag tag-warning">需修正</span></div>
+      <div class="alert-rule"><b>格式完整</b><p>材料已满足提交要求，可进入初审。</p><span class="tag tag-success">通过</span></div>
+    </div>
+    <table style="margin-top:16px"><thead><tr><th>部门</th><th>指标项</th><th>已上传</th><th>完整率</th><th>提醒方式</th></tr></thead><tbody>
+      <tr><td>市卫健委</td><td>服务质量评价</td><td>2/4</td><td>50%</td><td>站内信 + 短信</td></tr>
+      <tr><td>市财政局</td><td>重点任务落实</td><td>3/3</td><td>100%</td><td>-</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📬</span>缺项提示与提醒渠道</h3><span class="extra">站内信 / 短信 / 待办</span></div>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="k">平均完整率</div><div class="v">82%</div><div class="progress-bar" style="margin-top:8px"><div class="fill fill-yellow" style="width:82%"></div></div></div>
+      <div class="feature-card"><div class="k">缺项指标</div><div class="v">27</div><div class="sub">集中在服务质量、现场检查类</div></div>
+      <div class="feature-card"><div class="k">已提醒部门</div><div class="v">11</div><div class="sub">站内信 11 / 短信 6</div></div>
+    </div>
+    <table><thead><tr><th>预警规则</th><th>触发条件</th><th>处置建议</th><th>提醒渠道</th><th>状态</th></tr></thead><tbody>
+      <tr><td>必传材料缺失</td><td>必填指标无附件</td><td>退回部门补充</td><td>站内信 + 短信</td><td><span class="tag tag-danger">已触发</span></td></tr>
+      <tr><td>材料与指标不匹配</td><td>OCR 未识别指标关键词</td><td>人工复核归类</td><td>站内待办</td><td><span class="tag tag-warning">待复核</span></td></tr>
+      <tr><td>版本过旧</td><td>文件日期早于评估周期</td><td>提示替换新版</td><td>站内信</td><td><span class="tag tag-info">提醒中</span></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+
+<!-- ====== 模块3-1: 智能预警与疑点核查 ====== -->
+<div class="page" id="m3-1">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num red">8</div><div class="label">红色合规预警</div><div class="sub">实时触发红线问题</div></div>
+    <div class="stat-card"><div class="num orange">16</div><div class="label">黄色履职预警</div><div class="sub">任务滞后与高频差评</div></div>
+    <div class="stat-card"><div class="num">11</div><div class="label">蓝色优化预警</div><div class="sub">资源效益待优化</div></div>
+    <div class="stat-card"><div class="num green">23</div><div class="label">本月已销号</div><div class="sub">处置闭环率 76%</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📋</span>预警事件台账</h3><span class="extra">按处置状态分为待派发、核查中、已销号三个状态栏上下排列</span></div>
+    <div class="alert alert-info">处置流程：预警生成后默认进入待派发；提交核查证据后进入核查中；审核确认通过后进入已销号，不通过则退回继续核查。</div>
+    <div class="search-bar">
+      <div class="form-item"><label>预警类型</label><select><option>全部</option><option>红色合规类预警</option><option>黄色履职类预警</option><option>蓝色资源效益预警</option></select></div>
+      <div class="form-item"><label>关联部门</label><select><option>全部部门</option><option>市卫生健康委员会</option><option>市城市管理局</option><option>市交通运输局</option><option>市教育局</option></select></div>
+      <div class="form-item"><label>触发时间</label><select><option>近 7 天</option><option>近 30 天</option><option>本季度</option></select></div>
+      <button class="btn btn-primary">🔍 查询</button>
+    </div>
+    <div class="ledger-board">
+      <div class="ledger-column">
+        <div class="column-head">待派发 <div class="column-actions"><span class="column-count">4 条</span><button class="btn btn-sm btn-outline">查看全部</button></div></div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0716-001</span><span class="tag tag-danger">预警类型：红色</span></div>
+          <div class="event-time">触发时间：2026-07-16 09:18</div>
+          <div class="event-dept">关联部门：市卫生健康委员会</div>
+          <div class="event-data">预警依据数据：编制台账显示实有人数 128，核定编制 116，超编进人 12 人。</div>
+        </div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0716-002</span><span class="tag tag-warning">预警类型：黄色</span></div>
+          <div class="event-time">触发时间：2026-07-16 08:42</div>
+          <div class="event-dept">关联部门：市城市管理局</div>
+          <div class="event-data">预警依据数据：重点任务连续 45 天未更新进展，12345 协同投诉 23 件。</div>
+        </div>
+      </div>
+      <div class="ledger-column">
+        <div class="column-head">核查中 <div class="column-actions"><span class="column-count">9 条</span><button class="btn btn-sm btn-outline">查看全部</button></div></div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0715-014</span><span class="tag tag-info">预警类型：蓝色</span></div>
+          <div class="event-time">触发时间：2026-07-15 16:05</div>
+          <div class="event-dept">关联部门：市交通运输局</div>
+          <div class="event-data">预警依据数据：编制闲置率 31.6%，人均办件量低于全市均值 42%。</div>
+          <div class="event-actions"><button class="btn btn-sm btn-primary" onclick="showWarningAudit('YJ-2026-0715-014','市交通运输局','蓝色')">审核</button></div>
+        </div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0715-011</span><span class="tag tag-danger">预警类型：红色</span></div>
+          <div class="event-time">触发时间：2026-07-15 11:30</div>
+          <div class="event-dept">关联部门：市教育局</div>
+          <div class="event-data">预警依据数据：权责清单缺失新增事项 7 项，系统比对未发现审批依据字段。</div>
+          <div class="event-actions"><button class="btn btn-sm btn-primary" onclick="showWarningAudit('YJ-2026-0715-011','市教育局','红色')">审核</button></div>
+        </div>
+      </div>
+      <div class="ledger-column">
+        <div class="column-head">已销号 <div class="column-actions"><span class="column-count">23 条</span><button class="btn btn-sm btn-outline">查看全部</button></div></div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0712-006</span><span class="tag tag-warning">预警类型：黄色</span></div>
+          <div class="event-time">触发时间：2026-07-12 14:22</div>
+          <div class="event-dept">关联部门：市政务服务管理局</div>
+          <div class="event-data">预警依据数据：群众高频差评 18 条；已完成回访整改并上传核查说明。</div>
+        </div>
+        <div class="warning-event">
+          <div class="event-top"><span class="event-id">预警编号：YJ-2026-0710-003</span><span class="tag tag-info">预警类型：蓝色</span></div>
+          <div class="event-time">触发时间：2026-07-10 10:09</div>
+          <div class="event-dept">关联部门：市行政审批局</div>
+          <div class="event-data">预警依据数据：职能交叉事项 5 项；已完成职责边界确认并归档。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🚨</span>预警类型规则</h3><span class="extra">AI 自动识别并生成预警台账</span></div>
+    <div class="warning-type-grid">
+      <div class="warning-type-card red">
+        <h4><span class="tag tag-danger">红色</span>合规类预警</h4>
+        <p>AI 自动识别擅自设立机构、超编进人、超职数配备、权责事项缺失、编外人员违规聘用等红线问题，实时触发红色预警。</p>
+        <div class="type-meta"><span class="tag tag-danger">实时预警</span><span class="tag tag-default">红线问题</span></div>
+      </div>
+      <div class="warning-type-card yellow">
+        <h4><span class="tag tag-warning">黄色</span>履职类预警</h4>
+        <p>重点任务长期滞后、跨部门多次协同投诉、群众高频差评等情况触发黄色预警，提示相关部门限期核查处置。</p>
+        <div class="type-meta"><span class="tag tag-warning">履职风险</span><span class="tag tag-default">限期核查</span></div>
+      </div>
+      <div class="warning-type-card blue">
+        <h4><span class="tag tag-info">蓝色</span>资源效益预警</h4>
+        <p>编制闲置率过高、人均业务量偏低、职能重叠交叉等情况触发蓝色优化预警，辅助开展资源配置优化。</p>
+        <div class="type-meta"><span class="tag tag-info">优化预警</span><span class="tag tag-default">资源效益</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块4-1: 数据采集与解析 ====== -->
+<div class="page" id="m4-1">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🗂️</span>数据采集</h3><span class="extra">选择政务系统数据源并导入评估数据</span></div>
+    <div class="alert alert-info">支持从公安实名库、12345、政务服务、信访、督查等政务系统选择数据源，用于后续 AI 解析与综合评估。</div>
+    <div class="source-grid">
+      <label class="source-card">
+        <input type="checkbox" checked>
+        <div class="source-icon">👤</div><div class="source-name">公安实名库</div><div class="source-meta">人口实名核验、身份匹配、辖区归属</div>
+      </label>
+      <label class="source-card">
+        <input type="checkbox" checked>
+        <div class="source-icon">☎️</div><div class="source-name">12345 热线</div><div class="source-meta">诉求工单、办理时效、满意度评价</div>
+      </label>
+      <label class="source-card">
+        <input type="checkbox" checked>
+        <div class="source-icon">🏛️</div><div class="source-name">政务服务</div><div class="source-meta">办件数据、审批时长、窗口评价</div>
+      </label>
+      <label class="source-card">
+        <input type="checkbox">
+        <div class="source-icon">✉️</div><div class="source-name">信访系统</div><div class="source-meta">信访事项、重复件、化解结果</div>
+      </label>
+      <label class="source-card">
+        <input type="checkbox">
+        <div class="source-icon">🔎</div><div class="source-name">督查系统</div><div class="source-meta">督办任务、整改反馈、逾期记录</div>
+      </label>
+    </div>
+    <div class="form-row">
+      <div class="form-item"><label>采集批次</label><input value="DC-2026-0716-01"></div>
+      <div class="form-item"><label>数据范围</label><select><option>近 30 天</option><option>本季度</option><option>本年度</option><option>自定义</option></select></div>
+      <div class="form-item"><label>同步方式</label><select><option>接口实时同步</option><option>定时批量同步</option><option>离线文件导入</option></select></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="showToast('已创建数据采集任务')">🔄 开始采集</button>
+      <button class="btn btn-outline">⚙️ 接口配置</button>
+      <button class="btn btn-outline">📋 采集日志</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🤖</span>数据解析</h3><span class="extra">选择文件并使用 AI 进行结构化解析</span></div>
+    <div class="form-row">
+      <div class="form-item"><label>解析类型</label><select><option>自动识别</option><option>Excel 台账</option><option>PDF 报告</option><option>Word 材料</option><option>图片票据</option></select></div>
+      <div class="form-item"><label>目标评估对象</label><select><option>市发展和改革委员会</option><option>市教育局</option><option>市卫生健康委员会</option><option>市城市管理局</option></select></div>
+    </div>
+    <div class="file-upload">
+      <div class="icon">📎</div>
+      <div class="tip">点击选择文件或拖拽上传，AI 将自动抽取字段、时间、主体、指标值与异常项</div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline">📁 选择文件</button>
+      <button class="btn btn-primary" onclick="showToast('AI解析任务已提交')">🤖 AI开始解析</button>
+    </div>
+    <div class="metric-strip" style="margin-top:20px">
+      <div class="metric-item"><div class="label">待解析文件</div><div class="value">12</div></div>
+      <div class="metric-item"><div class="label">已识别字段</div><div class="value">86</div></div>
+      <div class="metric-item"><div class="label">异常记录</div><div class="value" style="color:var(--warning)">9</div></div>
+      <div class="metric-item"><div class="label">解析准确率</div><div class="value" style="color:var(--success)">96.8%</div></div>
+    </div>
+    <table>
+      <thead><tr><th>文件名称</th><th>来源</th><th>解析字段</th><th>AI识别状态</th><th>入库表</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>热线工单_202607.xlsx</td><td>12345 热线</td><td>诉求类别、办理时长、满意度</td><td><span class="tag tag-success">解析完成</span></td><td>ods_12345_work_order</td><td><button class="btn btn-sm btn-outline">预览</button></td></tr>
+        <tr><td>政务服务办件.csv</td><td>政务服务</td><td>办件数量、承诺时限、实际时长</td><td><span class="tag tag-success">解析完成</span></td><td>ods_gov_service_case</td><td><button class="btn btn-sm btn-outline">预览</button></td></tr>
+        <tr><td>督查整改反馈.pdf</td><td>督查系统</td><td>任务编号、整改状态、逾期天数</td><td><span class="tag tag-warning">待人工确认</span></td><td>ods_supervision_rectify</td><td><button class="btn btn-sm btn-primary">确认</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== 模块4-2: AI评估模块 ====== -->
+<div class="page" id="m4-2">
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num green">92.5</div><div class="label">优秀最高分</div><div class="sub">市发展和改革委员会</div></div>
+    <div class="stat-card"><div class="num">84.0</div><div class="label">全市平均分</div><div class="sub">42 个部门参与评估</div></div>
+    <div class="stat-card"><div class="num orange">7</div><div class="label">待整改部门</div><div class="sub">合格及以下</div></div>
+    <div class="stat-card"><div class="num red">2</div><div class="label">不合格部门</div><div class="sub">自动进入督办</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🧠</span>AI综合评估结果</h3><span class="extra">优秀 ≥90；良好 80-89；合格 60-79；不合格 &lt;60</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>评估批次</label><select><option>2026年7月综合评估</option><option>2026年第二季度评估</option><option>2026年上半年评估</option></select></div>
+      <div class="form-item"><label>评估对象</label><select><option>全部部门</option><option>市发展和改革委员会</option><option>市教育局</option><option>市卫生健康委员会</option></select></div>
+      <div class="form-item"><label>等级</label><select><option>全部</option><option>优秀</option><option>良好</option><option>合格</option><option>不合格</option></select></div>
+      <button class="btn btn-primary">🔍 查询</button>
+    </div>
+    <table>
+      <thead><tr><th>评估对象</th><th>基础数据质量</th><th>服务效能</th><th>诉求响应</th><th>整改落实</th><th>综合总分</th><th>自动划档</th><th>评分依据</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>市发展和改革委员会</td><td><span class="score-cell">94<small>权重 20%</small></span></td><td><span class="score-cell">91<small>权重 30%</small></span></td><td><span class="score-cell">90<small>权重 25%</small></span></td><td><span class="score-cell">95<small>权重 25%</small></span></td>
+          <td><strong style="font-size:18px;color:var(--success)">92.5</strong></td><td><span class="grade-pill grade-excellent">绿色 优秀</span></td><td><button class="btn btn-sm btn-outline" onclick="showEvidence('市发展和改革委员会','92.5','优秀')">评分依据说明</button></td>
+        </tr>
+        <tr>
+          <td>市教育局</td><td><span class="score-cell">88<small>权重 20%</small></span></td><td><span class="score-cell">83<small>权重 30%</small></span></td><td><span class="score-cell">86<small>权重 25%</small></span></td><td><span class="score-cell">82<small>权重 25%</small></span></td>
+          <td><strong style="font-size:18px;color:var(--primary)">84.6</strong></td><td><span class="grade-pill grade-good">蓝色 良好</span></td><td><button class="btn btn-sm btn-outline" onclick="showEvidence('市教育局','84.6','良好')">评分依据说明</button></td>
+        </tr>
+        <tr>
+          <td>市城市管理局</td><td><span class="score-cell">76<small>权重 20%</small></span></td><td><span class="score-cell">72<small>权重 30%</small></span></td><td><span class="score-cell">69<small>权重 25%</small></span></td><td><span class="score-cell">75<small>权重 25%</small></span></td>
+          <td><strong style="font-size:18px;color:var(--warning)">72.8</strong></td><td><span class="grade-pill grade-pass">黄色 合格</span></td><td><button class="btn btn-sm btn-outline" onclick="showEvidence('市城市管理局','72.8','合格')">评分依据说明</button></td>
+        </tr>
+        <tr>
+          <td>市卫生健康委员会</td><td><span class="score-cell">64<small>权重 20%</small></span></td><td><span class="score-cell">58<small>权重 30%</small></span></td><td><span class="score-cell">55<small>权重 25%</small></span></td><td><span class="score-cell">52<small>权重 25%</small></span></td>
+          <td><strong style="font-size:18px;color:var(--danger)">57.0</strong></td><td><span class="grade-pill grade-fail">红色 不合格</span></td><td><button class="btn btn-sm btn-outline" onclick="showEvidence('市卫生健康委员会','57.0','不合格')">评分依据说明</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📊</span>等级分布统计</h3><span class="extra">按综合总分自动划档生成</span></div>
+    <div class="distribution">
+      <div class="bucket"><span class="grade-pill grade-excellent">绿色 优秀</span><div class="count" style="color:var(--success)">12</div><div class="progress-bar"><div class="fill fill-green" style="width:29%"></div></div></div>
+      <div class="bucket"><span class="grade-pill grade-good">蓝色 良好</span><div class="count" style="color:var(--primary)">21</div><div class="progress-bar"><div class="fill" style="width:50%;background:var(--primary)"></div></div></div>
+      <div class="bucket"><span class="grade-pill grade-pass">黄色 合格</span><div class="count" style="color:var(--warning)">7</div><div class="progress-bar"><div class="fill fill-yellow" style="width:17%"></div></div></div>
+      <div class="bucket"><span class="grade-pill grade-fail">红色 不合格</span><div class="count" style="color:var(--danger)">2</div><div class="progress-bar"><div class="fill fill-red" style="width:5%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块5-1: 整改通知书生成与下发 ====== -->
+<div class="page" id="m5-1">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📋</span>自动生成整改通知书</h3><span class="extra">系统根据评估结果自动生成，确认后在线签章下发</span></div>
+    <div class="alert alert-info">请选择目标部门和整改类型，系统将自动匹配评估结果中的问题项，生成标准化整改通知书。</div>
+    <div class="form-row">
+      <div class="form-item"><label class="required">选择部门</label><select><option>市发展和改革委员会</option><option>市教育局</option><option>市卫生健康委员会</option><option>市城市管理局</option><option>市交通运输局</option></select></div>
+      <div class="form-item"><label class="required">整改类型</label><select><option>年度综合评估整改</option><option>红色预警整改</option><option>专项督查整改</option></select></div>
+      <div class="form-item"><label class="required">整改时限（天）</label><input type="number" value="30" min="1" max="90"></div>
+    </div>
+    <div class="form-item" style="margin-bottom:18px"><label class="required">整改事项清单</label><textarea rows="4" placeholder="系统将自动从评估结果中提取...">1. 内设机构设置不规范 —— 需在30日内完成机构调整方案报批&#10;2. 编制使用率低于60% —— 需提交编制优化方案&#10;3. 权责清单未及时更新 —— 需补录2024-2025年度新增权责事项</textarea></div>
+    <div class="form-item" style="margin-bottom:18px"><label class="required">验收标准</label><textarea rows="2" placeholder="逐项列明验收通过的条件...">1. 机构调整方案获编办批复；2. 编制使用率达75%以上；3. 权责清单核对无误且更新至最新版本</textarea></div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="showToast('通知书已生成并下发！')">📝 生成并下发</button>
+      <button class="btn btn-outline">💾 暂存草稿</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📨</span>已下发整改通知书</h3><span class="extra">共 12 条记录</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>部门</label><select><option>全部</option><option>市发改委</option><option>市教育局</option><option>市卫健委</option></select></div>
+      <div class="form-item"><label>状态</label><select><option>全部</option><option>整改中</option><option>已提交</option><option>已完成</option></select></div>
+      <button class="btn btn-primary">🔍 查询</button>
+    </div>
+    <table>
+      <thead><tr><th>通知书编号</th><th>部门</th><th>整改类型</th><th>下发时间</th><th>时限</th><th>状态</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>ZG-2026-001</td><td>市发展和改革委员会</td><td>年度综合评估</td><td>2026-07-10</td><td>30天</td><td><span class="tag tag-warning">整改中</span></td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-primary">督办</button></td></tr>
+        <tr><td>ZG-2026-002</td><td>市教育局</td><td>红色预警</td><td>2026-07-08</td><td>30天</td><td><span class="tag tag-success">已完成</span></td><td><button class="btn btn-sm btn-outline">查看</button></td></tr>
+        <tr><td>ZG-2026-003</td><td>市城市管理局</td><td>专项督查</td><td>2026-07-05</td><td>15天</td><td><span class="tag tag-warning">整改中</span></td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-primary">督办</button></td></tr>
+        <tr><td>ZG-2026-004</td><td>市卫生健康委员会</td><td>年度综合评估</td><td>2026-07-01</td><td>30天</td><td><span class="tag tag-danger">逾期未提交</span></td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-danger">催办</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== 模块5-2: 部门整改方案在线填报 ====== -->
+<div class="page" id="m5-2">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📝</span>整改方案填报</h3><span class="extra">通知书编号：ZG-2026-001</span></div>
+    <div class="alert alert-warning">当前部门：<strong>市发展和改革委员会</strong>　|　剩余整改时限：<strong>25 天</strong>　|　待整改事项：<strong>3 项</strong></div>
+    <div style="margin-bottom:28px;padding:18px 20px;background:#fafbfc;border-radius:8px;border:1px solid var(--border)">
+      <h4 style="font-size:14px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px"><span class="tag tag-warning">事项一</span>内设机构设置不规范</h4>
+      <div class="form-row"><div class="form-item"><label class="required">整改措施</label><textarea rows="3">重新梳理内设机构设置方案，对现有12个内设机构进行优化整合，精简至10个以内，报编办审批。</textarea></div></div>
+      <div class="form-row">
+        <div class="form-item"><label class="required">责任人</label><input value="王建国"></div>
+        <div class="form-item"><label class="required">完成时限</label><input type="date" value="2026-08-05"></div>
+      </div>
+      <div class="form-item" style="margin-bottom:0"><label>佐证材料</label><div class="file-upload"><div class="icon">📎</div><div class="tip">点击或拖拽上传（方案文件、会议纪要、制度文件等）</div></div></div>
+    </div>
+    <div style="margin-bottom:28px;padding:18px 20px;background:#fafbfc;border-radius:8px;border:1px solid var(--border)">
+      <h4 style="font-size:14px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px"><span class="tag tag-warning">事项二</span>编制使用率低于60%</h4>
+      <div class="form-row"><div class="form-item"><label class="required">整改措施</label><textarea rows="3">启动2026年度公开招聘计划，拟招录8名工作人员，预计编制使用率提升至78%。</textarea></div></div>
+      <div class="form-row">
+        <div class="form-item"><label class="required">责任人</label><input value="李雪梅"></div>
+        <div class="form-item"><label class="required">完成时限</label><input type="date" value="2026-08-10"></div>
+      </div>
+      <div class="form-item" style="margin-bottom:0"><label>佐证材料</label><div class="file-upload"><div class="icon">📎</div><div class="tip">点击或拖拽上传（招聘计划、人员调整表等）</div></div></div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="showToast('方案已保存！')">💾 保存方案</button>
+      <button class="btn btn-success" onclick="showToast('方案已提交，待AI核验！')">📤 提交方案</button>
+      <button class="btn btn-outline">暂存草稿</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块5-3: AI智能核验 ====== -->
+<div class="page" id="m5-3">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">🤖</span>AI智能核验结果</h3><span class="extra"><span class="ai-badge">AI 自动核验</span></span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>部门</label><select><option>全部</option><option>市发改委</option><option>市教育局</option></select></div>
+      <div class="form-item"><label>核验结果</label><select><option>全部</option><option>达标</option><option>部分达标</option><option>不达标</option></select></div>
+      <button class="btn btn-primary">🔍 查询</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📊</span>市发展和改革委员会 — AI核验详情</h3></div>
+    <table>
+      <thead><tr><th>整改事项</th><th>整改要求</th><th>部门提交</th><th style="width:90px">关键词匹配</th><th style="width:90px">相关性</th><th style="width:80px">AI判定</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>内设机构设置不规范</td><td>完成机构调整方案、精简内设机构</td><td>已提交机构优化整合方案，精简至10个</td>
+          <td><span style="color:var(--success);font-weight:600">85%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-green" style="width:85%"></div></div></td>
+          <td><span style="color:var(--success);font-weight:600">92%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-green" style="width:92%"></div></div></td>
+          <td><span class="tag tag-success">✅ 达标</span></td>
+        </tr>
+        <tr>
+          <td>编制使用率低于60%</td><td>提交编制优化方案、使用率达75%</td><td>已提交公开招聘计划，拟招录8人</td>
+          <td><span style="color:var(--warning);font-weight:600">68%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-yellow" style="width:68%"></div></div></td>
+          <td><span style="color:var(--warning);font-weight:600">75%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-yellow" style="width:75%"></div></div></td>
+          <td><span class="tag tag-warning">⚠️ 部分达标</span></td>
+        </tr>
+        <tr>
+          <td>权责清单未及时更新</td><td>补录2024-2025年度新增权责事项</td><td>已提交更新后权责清单（新增23项）</td>
+          <td><span style="color:var(--success);font-weight:600">92%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-green" style="width:92%"></div></div></td>
+          <td><span style="color:var(--success);font-weight:600">96%</span><div class="progress-bar" style="margin-top:4px"><div class="fill fill-green" style="width:96%"></div></div></td>
+          <td><span class="tag tag-success">✅ 达标</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="alert alert-warning" style="margin-top:16px">⚠️ <strong>AI建议：</strong>事项2"编制使用率"仅提交招聘计划，尚未提供实际人员到位证明，建议要求部门补充录用公示或入职名单。</div>
+  </div>
+</div>
+
+
+<!-- ====== 模块5-4: 人工复核销号 ====== -->
+<div class="page" id="m5-4">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">✅</span>人工复核销号</h3><span class="extra">编办管理员复核AI核验结果</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>部门</label><select><option>全部</option><option>市发改委</option><option>市卫健委</option></select></div>
+      <div class="form-item"><label>AI核验</label><select><option>全部</option><option>达标</option><option>部分达标</option><option>不达标</option></select></div>
+      <button class="btn btn-primary">🔍 查询</button>
+    </div>
+    <table>
+      <thead><tr><th>通知书编号</th><th>部门</th><th>提交时间</th><th>AI核验</th><th>复核状态</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>ZG-2026-001</td><td>市发展和改革委员会</td><td>2026-07-12</td><td><span class="tag tag-warning">部分达标</span></td><td><span class="tag tag-info">待复核</span></td>
+          <td><button class="btn btn-sm btn-success" onclick="showToast('复核通过！已销号')">✓ 复核通过</button> <button class="btn btn-sm btn-danger">二次督办</button> <button class="btn btn-sm btn-outline">详情</button></td>
+        </tr>
+        <tr>
+          <td>ZG-2026-004</td><td>市卫生健康委员会</td><td>2026-07-11</td><td><span class="tag tag-danger">不达标</span></td><td><span class="tag tag-info">待复核</span></td>
+          <td><button class="btn btn-sm btn-success" onclick="showToast('复核通过！已销号')">✓ 复核通过</button> <button class="btn btn-sm btn-danger">二次督办</button> <button class="btn btn-sm btn-outline">详情</button></td>
+        </tr>
+        <tr>
+          <td>ZG-2026-005</td><td>市交通运输局</td><td>2026-07-13</td><td><span class="tag tag-success">达标</span></td><td><span class="tag tag-info">待复核</span></td>
+          <td><button class="btn btn-sm btn-success" onclick="showToast('复核通过！已销号')">✓ 复核通过</button> <button class="btn btn-sm btn-danger">二次督办</button> <button class="btn btn-sm btn-outline">详情</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📜</span>复核操作日志</h3></div>
+    <div class="timeline">
+      <div class="timeline-item"><div class="time">2026-07-13 15:30</div><div class="text"><strong>编办张主任</strong> 对市教育局 ZG-2026-002 复核通过，状态变更为「已整改完成」</div></div>
+      <div class="timeline-item"><div class="time">2026-07-12 10:15</div><div class="text"><strong>编办李科长</strong> 对市城市管理局 ZG-2026-003 发起二次督办，原因：佐证材料不全</div></div>
+      <div class="timeline-item"><div class="time">2026-07-10 09:00</div><div class="text"><strong>系统自动</strong> 对市卫健委 ZG-2026-004 发送逾期提醒短信</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 模块5-5: 整改记录归档 ====== -->
+<div class="page" id="m5-5">
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">📁</span>整改记录归档库</h3><span class="extra">共 28 条归档记录</span></div>
+    <div class="search-bar">
+      <div class="form-item"><label>年度</label><select><option>全部</option><option>2026</option><option>2025</option><option>2024</option></select></div>
+      <div class="form-item"><label>部门</label><select><option>全部</option><option>市发改委</option><option>市教育局</option></select></div>
+      <div class="form-item"><label>评估类型</label><select><option>全部</option><option>年度综合</option><option>专项督查</option><option>不定期</option></select></div>
+      <div class="form-item"><label>关键词</label><input placeholder="输入关键词搜索..."></div>
+      <button class="btn btn-primary">🔍 检索</button>
+    </div>
+    <table>
+      <thead><tr><th>档案编号</th><th>年度</th><th>部门</th><th>评估类型</th><th>通知书</th><th>方案</th><th>佐证</th><th>复核结果</th><th>归档时间</th><th>操作</th></tr></thead>
+      <tbody>
+        <tr><td>DA-2026-001</td><td>2026</td><td>市发改委</td><td><span class="tag tag-info">年度综合</span></td><td>✅</td><td>✅</td><td>3份</td><td>通过</td><td>2026-07-13</td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-outline">下载</button></td></tr>
+        <tr><td>DA-2026-002</td><td>2026</td><td>市教育局</td><td><span class="tag tag-danger">红色预警</span></td><td>✅</td><td>✅</td><td>5份</td><td>通过</td><td>2026-07-13</td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-outline">下载</button></td></tr>
+        <tr><td>DA-2025-015</td><td>2025</td><td>市卫健委</td><td><span class="tag tag-info">年度综合</span></td><td>✅</td><td>✅</td><td>4份</td><td>通过</td><td>2025-12-20</td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-outline">下载</button></td></tr>
+        <tr><td>DA-2025-012</td><td>2025</td><td>市城管局</td><td><span class="tag tag-warning">专项督查</span></td><td>✅</td><td>✅</td><td>2份</td><td>二次督办后通过</td><td>2025-11-15</td><td><button class="btn btn-sm btn-outline">查看</button> <button class="btn btn-sm btn-outline">下载</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 模块6: 大数据驾驶舱 ============ -->
+<style>
+.dark-mode .content{background:#0a0e27}
+.dark-mode .stat-card{background:rgba(16,24,60,.9);border:1px solid rgba(100,140,255,.15);backdrop-filter:blur(8px)}
+.dark-mode .stat-card .num{background:linear-gradient(135deg,#69b1ff,#1677ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dark-mode .stat-card .num.green{background:linear-gradient(135deg,#95de64,#00b96b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dark-mode .stat-card .num.orange{background:linear-gradient(135deg,#ffd666,#fa8c16);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dark-mode .stat-card .num.red{background:linear-gradient(135deg,#ff7875,#f5222d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.dark-mode .stat-card .label,.dark-mode .stat-card .sub{color:rgba(255,255,255,.6)}
+.dark-mode .stat-card::before{background:linear-gradient(90deg,#1677ff,#69b1ff,#1677ff)}
+.dark-mode .chart-box{background:rgba(16,24,60,.9);border:1px solid rgba(100,140,255,.12)}
+.dark-mode .chart-box h3{color:rgba(255,255,255,.9)}
+.dark-mode .card{background:rgba(16,24,60,.9);border:1px solid rgba(100,140,255,.12)}
+.dark-mode .card h3,.dark-mode .card-header h3{color:rgba(255,255,255,.9)}
+.dark-mode .card-header{border-bottom-color:rgba(100,140,255,.12)}
+.dark-mode table thead th{background:rgba(22,119,255,.08);color:rgba(255,255,255,.75);border-bottom-color:rgba(100,140,255,.15)}
+.dark-mode table tbody td{color:rgba(255,255,255,.6);border-bottom-color:rgba(100,140,255,.08)}
+.dark-mode table tbody tr:hover{background:rgba(22,119,255,.06)}
+.dark-mode .btn-outline{background:transparent;color:rgba(255,255,255,.65);border-color:rgba(100,140,255,.25)}
+.dark-mode .btn-outline:hover{border-color:#69b1ff;color:#69b1ff}
+.dark-mode .search-bar .form-item label{color:rgba(255,255,255,.6)}
+.dark-mode .search-bar input,.dark-mode .search-bar select{background:rgba(16,24,60,.8);border-color:rgba(100,140,255,.2);color:rgba(255,255,255,.85)}
+.dark-header{position:fixed;top:0;left:248px;right:0;height:56px;background:rgba(10,14,39,.95);backdrop-filter:blur(10px);z-index:10;display:flex;align-items:center;padding:0 28px;border-bottom:1px solid rgba(100,140,255,.1)}
+.dark-header .breadcrumb{color:rgba(255,255,255,.55)}
+.dark-header .username{color:rgba(255,255,255,.75)}
+.dark-header .badge{background:rgba(22,119,255,.2);color:#69b1ff}
+.dark-global-bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;background:linear-gradient(135deg,#0a0e27 0%,#0d1440 30%,#0a1030 60%,#0c1238 100%)}
+.dark-global-bg::before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(22,119,255,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(114,46,209,.06) 0%,transparent 60%),radial-gradient(ellipse at 50% 80%,rgba(0,185,107,.05) 0%,transparent 60%)}
+@keyframes glowPulse{0%,100%{opacity:.6}50%{opacity:1}}
+.dark-mode .stat-card:hover{border-color:rgba(100,140,255,.35);box-shadow:0 0 30px rgba(22,119,255,.1),0 4px 20px rgba(0,0,0,.3)}
+.dark-mode .chart-box:hover{border-color:rgba(100,140,255,.25)}
+</style>
+
+<!-- ====== 模块6-1: 全市总览大屏 ====== -->
+<div class="page active dark-mode" id="m6-1">
+  <div class="dark-global-bg"></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="num green">78%</div><div class="label">评估优良率</div><div class="sub">较上年 ↑ 5.2%</div></div>
+    <div class="stat-card"><div class="num">42</div><div class="label">参评部门总数</div><div class="sub">市直 + 区县全覆盖</div></div>
+    <div class="stat-card"><div class="num orange">8</div><div class="label">红色预警部门</div><div class="sub">需重点督办</div></div>
+    <div class="stat-card"><div class="num red">12</div><div class="label">待整改事项</div><div class="sub">较上月 ↓ 3 项</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>市直部门评估等级占比</h3><div class="chart" id="chart-grade"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>编制使用效益趋势（近6季度）</h3><div class="chart" id="chart-trend"></div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>高频履职问题 TOP10</h3><div class="chart" id="chart-top10"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>四方评价满意度分布</h3><div class="chart" id="chart-satisfy"></div></div>
+  </div>
+</div>
+
+<!-- ====== 模块6-2: 部门专题分析看板 ====== -->
+<div class="page dark-mode" id="m6-2">
+  <div class="dark-global-bg"></div>
+  <div class="search-bar" style="margin-bottom:20px;position:relative;z-index:1">
+    <div class="form-item"><label>选择部门</label><select id="deptSelect"><option>市发展和改革委员会</option><option>市教育局</option><option>市卫生健康委员会</option><option>市城市管理局</option><option>市交通运输局</option></select></div>
+    <button class="btn btn-primary">🔍 分析</button>
+  </div>
+  <div class="stat-grid" style="position:relative;z-index:1">
+    <div class="stat-card"><div class="num" style="background:linear-gradient(135deg,#69b1ff,#1677ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">86.5</div><div class="label">综合得分</div><div class="sub">百分制</div></div>
+    <div class="stat-card"><div class="num green">第 3</div><div class="label">同类排名</div><div class="sub">共 12 个部门</div></div>
+    <div class="stat-card"><div class="num orange">2</div><div class="label">待整改事项</div><div class="sub">整改中</div></div>
+    <div class="stat-card"><div class="num green">92%</div><div class="label">群众满意度</div><div class="sub">较上年 ↑ 3%</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>指标得分明细（雷达图）</h3><div class="chart" id="chart-radar"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>历年综合得分纵向对比</h3><div class="chart" id="chart-year"></div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>同类部门横向排名对比</h3><div class="chart" id="chart-rank"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>群众评价热力分析</h3><div class="chart" id="chart-heat"></div></div>
+  </div>
+</div>
+
+<!-- ====== 模块6-3: 编制资源分析看板 ====== -->
+<div class="page dark-mode" id="m6-3">
+  <div class="dark-global-bg"></div>
+  <div class="stat-grid" style="position:relative;z-index:1">
+    <div class="stat-card"><div class="num red">23%</div><div class="label">编制闲置率</div><div class="sub">行业平均水平</div></div>
+    <div class="stat-card"><div class="num orange">6</div><div class="label">编制紧缺部门</div><div class="sub">需优先调配</div></div>
+    <div class="stat-card"><div class="num green">95%</div><div class="label">机构合规率</div><div class="sub">较上年 ↑ 2%</div></div>
+    <div class="stat-card"><div class="num">38</div><div class="label">超编风险预警</div><div class="sub">实时监测中</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>各行业编制闲置 / 紧缺热力图</h3><div class="chart" id="chart-heatmap"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>机构设置合规性统计</h3><div class="chart" id="chart-comply"></div></div>
+  </div>
+</div>
+
+<!-- ====== 模块6-4: 整改督办看板 ====== -->
+<div class="page dark-mode" id="m6-4">
+  <div class="dark-global-bg"></div>
+  <div class="stat-grid" style="position:relative;z-index:1">
+    <div class="stat-card"><div class="num">5</div><div class="label">待整改</div><div class="sub">新下发</div></div>
+    <div class="stat-card"><div class="num orange">8</div><div class="label">整改中</div><div class="sub">持续跟踪</div></div>
+    <div class="stat-card"><div class="num green">15</div><div class="label">已销号</div><div class="sub">整改完成</div></div>
+    <div class="stat-card"><div class="num red">3</div><div class="label">逾期未整改</div><div class="sub">⚠ 需立即催办</div></div>
+  </div>
+  <div class="chart-row">
+    <div class="chart-box"><h3><span class="dot"></span>整改状态分布</h3><div class="chart" id="chart-status"></div></div>
+    <div class="chart-box"><h3><span class="dot"></span>各部门整改完成率</h3><div class="chart" id="chart-complete"></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><h3><span class="icon">⚠️</span>逾期整改预警提醒</h3></div>
+    <table>
+      <thead><tr><th>部门</th><th>通知书编号</th><th>整改事项</th><th>截止日期</th><th>状态</th><th>风险等级</th></tr></thead>
+      <tbody>
+        <tr><td>市卫健委</td><td>ZG-2026-004</td><td>权责清单未更新</td><td>2026-07-31</td><td style="color:#f5222d">已逾期 14 天</td><td><span class="tag tag-danger">🔴 高风险</span></td></tr>
+        <tr><td>市文旅局</td><td>ZG-2026-007</td><td>编制使用率低</td><td>2026-08-05</td><td style="color:#fa8c16">剩余 7 天</td><td><span class="tag tag-warning">🟡 中风险</span></td></tr>
+        <tr><td>市生态环境局</td><td>ZG-2026-009</td><td>内设机构超标</td><td>2026-08-10</td><td style="color:#1677ff">剩余 12 天</td><td><span class="tag tag-info">🔵 关注</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+  </div><!-- end content -->
+</div><!-- end main -->
+
+<div class="evidence-modal" id="evidenceModal" onclick="closeEvidence(event)">
+  <div class="evidence-panel">
+    <div class="panel-head">
+      <h3>评分依据说明</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeEvidence()">关闭</button>
+    </div>
+    <div class="panel-body">
+      <div class="alert alert-info" id="evidenceSummary">综合总分由基础数据质量、服务效能、诉求响应、整改落实四部分加权生成。</div>
+      <div class="evidence-grid">
+        <div class="evidence-box"><div class="label">数据来源</div><div class="value">数据库表：ods_12345_work_order、ods_gov_service_case、ods_supervision_rectify<br>字段：handle_days、satisfaction_score、overdue_count、rectify_status</div></div>
+        <div class="evidence-box"><div class="label">时间戳</div><div class="value">采集批次：DC-2026-0716-01<br>数据窗口：2026-06-16 00:00 至 2026-07-16 08:00</div></div>
+        <div class="evidence-box"><div class="label">引用原始值</div><div class="value">12345 平均办理时长：3.6 天<br>政务服务按时办结率：96.4%<br>督查逾期整改数：2 项</div></div>
+        <div class="evidence-box"><div class="label">扣分 / 加分明细</div><div class="value">逾期整改 -2.0 分；重复投诉率偏高 -1.5 分；群众满意度高于 95% +2.0 分；按时办结率达标 +1.0 分</div></div>
+      </div>
+      <div class="calc-line">综合总分 = 基础数据质量 × 20% + 服务效能 × 30% + 诉求响应 × 25% + 整改落实 × 25%</div>
+      <table>
+        <thead><tr><th>评分项</th><th>原始值</th><th>标准化得分</th><th>权重</th><th>加权得分</th></tr></thead>
+        <tbody>
+          <tr><td>基础数据质量</td><td>字段完整率 98.2%</td><td>94</td><td>20%</td><td>18.8</td></tr>
+          <tr><td>服务效能</td><td>按时办结率 96.4%</td><td>91</td><td>30%</td><td>27.3</td></tr>
+          <tr><td>诉求响应</td><td>平均办理时长 3.6 天</td><td>90</td><td>25%</td><td>22.5</td></tr>
+          <tr><td>整改落实</td><td>按期整改率 95.0%</td><td>95</td><td>25%</td><td>23.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="evidence-modal" id="warningAuditModal" onclick="closeWarningAudit(event)">
+  <div class="evidence-panel">
+    <div class="panel-head">
+      <h3>预警核查审核</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeWarningAudit()">关闭</button>
+    </div>
+    <div class="panel-body">
+      <div class="alert alert-info" id="warningAuditSummary">查看核查证据后，可选择审核通过或不通过。</div>
+      <div class="evidence-grid">
+        <div class="evidence-box"><div class="label">预警事件</div><div class="value" id="warningAuditEvent">预警编号：YJ-2026-0715-014<br>关联部门：市交通运输局<br>预警类型：蓝色</div></div>
+        <div class="evidence-box"><div class="label">提交证据</div><div class="value">整改说明.pdf<br>编制资源使用台账.xlsx<br>部门负责人签字确认单.jpg</div></div>
+        <div class="evidence-box"><div class="label">核查结论</div><div class="value">部门已提交业务量变化说明，拟通过岗位调剂提升人均业务承载量。</div></div>
+        <div class="evidence-box"><div class="label">审核要点</div><div class="value">核对证据是否覆盖预警依据；确认整改措施是否可量化；判断是否满足销号条件。</div></div>
+      </div>
+      <div class="form-item" style="margin-bottom:16px"><label>审核意见</label><textarea rows="3">证据材料已覆盖预警依据，整改措施具备可执行性，建议审核通过并转入已销号。</textarea></div>
+      <div class="btn-group">
+        <button class="btn btn-outline">📎 查看证据</button>
+        <button class="btn btn-success" onclick="showToast('审核通过，预警已转为已销号'); closeWarningAudit()">通过</button>
+        <button class="btn btn-danger" onclick="showToast('审核不通过，已退回继续核查'); closeWarningAudit()">不通过</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Toast =====
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#1d2129;color:#fff;padding:10px 24px;border-radius:8px;font-size:13px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:fadeIn .3s ease';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){ t.remove(); },300); },2000);
+}
+
+// ===== 评分依据弹窗 =====
+function showEvidence(dept, score, grade) {
+  var summary = document.getElementById('evidenceSummary');
+  if (summary) summary.textContent = dept + ' 综合总分 ' + score + '，系统自动划档为“' + grade + '”。以下为本次评分的数据来源、引用原始值、计算公式和加减分明细。';
+  var modal = document.getElementById('evidenceModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeEvidence(event) {
+  if (event && event.target && event.target.id !== 'evidenceModal') return;
+  var modal = document.getElementById('evidenceModal');
+  if (modal) modal.classList.remove('show');
+}
+
+// ===== 预警审核弹窗 =====
+function showWarningAudit(id, dept, type) {
+  var eventBox = document.getElementById('warningAuditEvent');
+  if (eventBox) eventBox.innerHTML = '预警编号：' + id + '<br>关联部门：' + dept + '<br>预警类型：' + type;
+  var summary = document.getElementById('warningAuditSummary');
+  if (summary) summary.textContent = '当前预警处于“核查中”，请查看提交证据并给出通过或不通过审核意见。';
+  var modal = document.getElementById('warningAuditModal');
+  if (modal) modal.classList.add('show');
+}
+
+function closeWarningAudit(event) {
+  if (event && event.target && event.target.id !== 'warningAuditModal') return;
+  var modal = document.getElementById('warningAuditModal');
+  if (modal) modal.classList.remove('show');
+}
+
+// ===== 责权清单管理 =====
+var rightsLedgerState = {
+  initialized: false,
+  page: 1,
+  size: 10,
+  total: 0,
+  totalPages: 0,
+  loading: false,
+  currentItems: [],
+  optionsLoaded: false
+};
+var RIGHTS_API_BASE = (function() {
+  if (window.location.protocol === 'file:') return 'http://localhost:8080/api/basic-info/rights-items';
+  if (window.location.port === '8080') return '/api/basic-info/rights-items';
+  return 'http://localhost:8080/api/basic-info/rights-items';
+})();
+
+function rightsApi(path, params) {
+  var apiPath = RIGHTS_API_BASE + path;
+  var url = apiPath.indexOf('http') === 0 ? new URL(apiPath) : new URL(apiPath, window.location.origin);
+  if (params) {
+    Object.keys(params).forEach(function(key) {
+      var value = params[key];
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        url.searchParams.set(key, value);
+      }
+    });
+  }
+  return fetch(url.toString()).then(function(resp) {
+    if (!resp.ok) return resp.text().then(function(text) { throw new Error(text || ('请求失败：' + resp.status)); });
+    return resp.json();
+  });
+}
+
+function escapeHtml(value) {
+  return String(value === null || value === undefined ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function shortText(value, length) {
+  var text = String(value === null || value === undefined ? '' : value);
+  if (!text) return '-';
+  if (!length || text.length <= length) return text;
+  return text.slice(0, length) + '...';
+}
+
+function statusClass(status) {
+  var text = String(status === null || status === undefined ? '' : status);
+  if (/(已|确认|现行|有效|通过|销号)/.test(text)) return 'tag tag-success';
+  if (/(待|核查|审核|新增|未|草稿)/.test(text)) return 'tag tag-warning';
+  return 'tag tag-info';
+}
+
+function renderSelect(selectId, items, placeholder) {
+  var select = document.getElementById(selectId);
+  if (!select) return;
+  var html = '<option value="">' + escapeHtml(placeholder) + '</option>';
+  html += items.map(function(item) {
+    return '<option value="' + escapeHtml(item) + '">' + escapeHtml(item) + '</option>';
+  }).join('');
+  select.innerHTML = html;
+}
+
+function bindRightsLedgerEvents() {
+  if (rightsLedgerState.initialized) return;
+  rightsLedgerState.initialized = true;
+
+  var queryBtn = document.getElementById('rightsQueryBtn');
+  var resetBtn = document.getElementById('rightsResetBtn');
+  var exportBtn = document.getElementById('rightsExportBtn');
+  var keyword = document.getElementById('rightsKeyword');
+
+  if (queryBtn) queryBtn.addEventListener('click', function() { loadRightsLedgerPage(1); });
+  if (resetBtn) resetBtn.addEventListener('click', function() { resetRightsLedgerFilters(); });
+  if (exportBtn) exportBtn.addEventListener('click', function() { exportRightsLedgerPage(); });
+  if (keyword) keyword.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') loadRightsLedgerPage(1);
+  });
+}
+
+function getRightsLedgerFilters() {
+  var keyword = document.getElementById('rightsKeyword');
+  var department = document.getElementById('rightsDepartment');
+  var powerType = document.getElementById('rightsPowerType');
+  var sourceFile = document.getElementById('rightsSourceFile');
+  return {
+    keyword: keyword ? keyword.value.trim() : '',
+    department: department ? department.value : '',
+    powerType: powerType ? powerType.value : '',
+    sourceFile: sourceFile ? sourceFile.value : ''
+  };
+}
+
+function setRightsLedgerHint(text) {
+  var hint = document.getElementById('rightsLedgerHint');
+  if (hint) hint.textContent = text;
+}
+
+function renderRightsStats(stats) {
+  var totalItems = document.getElementById('rightsTotalItems');
+  var totalFiles = document.getElementById('rightsTotalFiles');
+  var totalDepartments = document.getElementById('rightsTotalDepartments');
+  var totalPowerTypes = document.getElementById('rightsTotalPowerTypes');
+  var powerTypeStats = document.getElementById('rightsPowerTypeStats');
+  var deptStats = document.getElementById('rightsDeptStats');
+
+  if (totalItems) totalItems.textContent = stats.totalItems;
+  if (totalFiles) totalFiles.textContent = stats.totalSourceFiles;
+  if (totalDepartments) totalDepartments.textContent = stats.totalDepartments;
+  if (totalPowerTypes) totalPowerTypes.textContent = stats.totalPowerTypes;
+
+  if (powerTypeStats) {
+    powerTypeStats.innerHTML = stats.powerTypeDistribution.slice(0, 8).map(function(item) {
+      return '<div class="log-item"><span>' + escapeHtml(item.name) + '</span><span class="tag tag-info">' + escapeHtml(item.value) + '</span></div>';
+    }).join('') || '<div class="log-item"><span>暂无统计</span><span class="tag tag-info">0</span></div>';
+  }
+
+  if (deptStats) {
+    deptStats.innerHTML = stats.departmentTop.slice(0, 8).map(function(item) {
+      return '<div class="log-item"><span>' + escapeHtml(item.name) + '</span><span class="tag tag-success">' + escapeHtml(item.value) + '</span></div>';
+    }).join('') || '<div class="log-item"><span>暂无统计</span><span class="tag tag-info">0</span></div>';
+  }
+}
+
+async function loadRightsLedgerMeta() {
+  var options = await rightsApi('/options');
+  renderSelect('rightsDepartment', options.departments || [], '全部部门');
+  renderSelect('rightsPowerType', options.powerTypes || [], '全部类型');
+  renderSelect('rightsSourceFile', options.sourceFiles || [], '全部来源');
+  var stats = await rightsApi('/stats');
+  renderRightsStats(stats);
+  rightsLedgerState.optionsLoaded = true;
+}
+
+function renderRightsLedgerRows(items) {
+  var tbody = document.getElementById('rightsLedgerBody');
+  if (!tbody) return;
+
+  if (!items || !items.length) {
+    tbody.innerHTML = '<tr><td colspan="15" style="text-align:center;color:var(--text-secondary);padding:28px 14px">暂无匹配数据</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = items.map(function(row) {
+    var status = row.status || '-';
+    var detailTitle = '查看详情：' + (row.itemName || '');
+    return '<tr>'
+      + '<td>' + escapeHtml(row.sequenceNo || row.id || '-') + '</td>'
+      + '<td title="' + escapeHtml(row.itemName || '') + '">' + escapeHtml(shortText(row.itemName, 26)) + '</td>'
+      + '<td title="' + escapeHtml(row.subitemName || '') + '">' + escapeHtml(shortText(row.subitemName, 24)) + '</td>'
+      + '<td><span class="tag tag-info">' + escapeHtml(row.powerType || '未分类') + '</span></td>'
+      + '<td title="' + escapeHtml(row.basis || '') + '">' + escapeHtml(shortText(row.basis, 34)) + '</td>'
+      + '<td title="' + escapeHtml(row.exercisingBody || '') + '">' + escapeHtml(shortText(row.exercisingBody, 18)) + '</td>'
+      + '<td title="' + escapeHtml(row.undertakingOrg || '') + '">' + escapeHtml(shortText(row.undertakingOrg, 18)) + '</td>'
+      + '<td title="' + escapeHtml(row.implementationLevelAuthority || '') + '">' + escapeHtml(shortText(row.implementationLevelAuthority, 20)) + '</td>'
+      + '<td title="' + escapeHtml(row.departmentDuty || '') + '">' + escapeHtml(shortText(row.departmentDuty, 26)) + '</td>'
+      + '<td title="' + escapeHtml(row.responsibilityContent || '') + '">' + escapeHtml(shortText(row.responsibilityContent, 26)) + '</td>'
+      + '<td title="' + escapeHtml(row.responsibilityBasis || '') + '">' + escapeHtml(shortText(row.responsibilityBasis, 26)) + '</td>'
+      + '<td title="' + escapeHtml(row.accountabilityScope || '') + '">' + escapeHtml(shortText(row.accountabilityScope, 22)) + '</td>'
+      + '<td title="' + escapeHtml(row.accountabilitySituation || '') + '">' + escapeHtml(shortText(row.accountabilitySituation, 22)) + '</td>'
+      + '<td title="' + escapeHtml(row.remark || '') + '">' + escapeHtml(shortText(row.remark, 16)) + '</td>'
+      + '<td><span class="' + statusClass(status) + '">' + escapeHtml(status) + '</span></td>'
+      + '<td><button class="btn btn-sm btn-outline rights-detail-btn" data-id="' + escapeHtml(row.id) + '" data-title="' + escapeHtml(detailTitle) + '">查看</button></td>'
+      + '</tr>';
+  }).join('');
+
+  tbody.querySelectorAll('.rights-detail-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      openRightsDetail(this.dataset.id);
+    });
+  });
+}
+
+function renderRightsLedgerPager() {
+  var pager = document.getElementById('rightsPager');
+  if (!pager) return;
+
+  var totalPages = rightsLedgerState.totalPages || 1;
+  var current = rightsLedgerState.page || 1;
+  var buttons = [];
+  buttons.push('<button class="btn btn-outline" ' + (current <= 1 ? 'disabled' : '') + ' data-page="' + (current - 1) + '">上一页</button>');
+
+  var start = Math.max(1, current - 2);
+  var end = Math.min(totalPages, start + 4);
+  for (var i = start; i <= end; i++) {
+    buttons.push('<button class="btn ' + (i === current ? 'btn-primary' : 'btn-outline') + '" data-page="' + i + '">' + i + '</button>');
+  }
+
+  buttons.push('<button class="btn btn-outline" ' + (current >= totalPages ? 'disabled' : '') + ' data-page="' + (current + 1) + '">下一页</button>');
+  pager.innerHTML = buttons.join('');
+  pager.querySelectorAll('button[data-page]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var page = parseInt(this.dataset.page, 10);
+      if (!isNaN(page)) loadRightsLedgerPage(page);
+    });
+  });
+}
+
+async function loadRightsLedgerPage(page) {
+  bindRightsLedgerEvents();
+  if (!rightsLedgerState.optionsLoaded) {
+    setRightsLedgerHint('正在加载权责清单数据...');
+    await loadRightsLedgerMeta();
+  }
+  rightsLedgerState.loading = true;
+  rightsLedgerState.page = page || 1;
+  setRightsLedgerHint('正在加载第 ' + rightsLedgerState.page + ' 页数据...');
+
+  var filters = getRightsLedgerFilters();
+  var data = await rightsApi('', {
+    page: rightsLedgerState.page,
+    size: rightsLedgerState.size,
+    keyword: filters.keyword,
+    department: filters.department,
+    powerType: filters.powerType,
+    sourceFile: filters.sourceFile
+  });
+
+  rightsLedgerState.page = data.page || 1;
+  rightsLedgerState.size = data.size || 10;
+  rightsLedgerState.total = data.total || 0;
+  rightsLedgerState.totalPages = data.totalPages || 1;
+  rightsLedgerState.currentItems = data.items || [];
+
+  renderRightsLedgerRows(rightsLedgerState.currentItems);
+  renderRightsLedgerPager();
+  setRightsLedgerHint('已加载 ' + rightsLedgerState.currentItems.length + ' 条，当前第 ' + rightsLedgerState.page + ' / ' + rightsLedgerState.totalPages + ' 页，共 ' + rightsLedgerState.total + ' 条。');
+  rightsLedgerState.loading = false;
+}
+
+function resetRightsLedgerFilters() {
+  var keyword = document.getElementById('rightsKeyword');
+  var department = document.getElementById('rightsDepartment');
+  var powerType = document.getElementById('rightsPowerType');
+  var sourceFile = document.getElementById('rightsSourceFile');
+  if (keyword) keyword.value = '';
+  if (department) department.value = '';
+  if (powerType) powerType.value = '';
+  if (sourceFile) sourceFile.value = '';
+  loadRightsLedgerPage(1);
+}
+
+function exportRightsLedgerPage() {
+  if (!rightsLedgerState.currentItems.length) {
+    showToast('当前页没有可导出的数据');
+    return;
+  }
+  var headers = ['序号','事项名称','子项名称','权力类型','实施依据','行使主体','承办机构','实施层级及权限','部门职责','责任事项内容','责任事项依据','追责对象范围','追责情形','备注','状态'];
+  var keys = ['sequenceNo','itemName','subitemName','powerType','basis','exercisingBody','undertakingOrg','implementationLevelAuthority','departmentDuty','responsibilityContent','responsibilityBasis','accountabilityScope','accountabilitySituation','remark','status'];
+  var csv = [headers.join(',')].concat(rightsLedgerState.currentItems.map(function(row) {
+    return keys.map(function(key) {
+      return '"' + String(row[key] === null || row[key] === undefined ? '' : row[key]).replace(/"/g, '""') + '"';
+    }).join(',');
+  })).join('\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '责权清单_第' + rightsLedgerState.page + '页.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function openRightsDetail(id) {
+  var modal = document.getElementById('rightsDetailModal');
+  var summary = document.getElementById('rightsDetailSummary');
+  var grid = document.getElementById('rightsDetailGrid');
+  var raw = document.getElementById('rightsDetailRaw');
+  if (modal) modal.classList.add('show');
+  if (summary) summary.textContent = '正在加载第 ' + id + ' 条权责事项详情...';
+  if (grid) grid.innerHTML = '';
+  if (raw) raw.textContent = '原始记录：-';
+
+  try {
+    var detail = await rightsApi('/' + id);
+    if (summary) summary.textContent = (detail.sourceFile || '未知来源') + ' / ' + (detail.sheetName || '未知工作表') + ' / 第 ' + (detail.sourceRowNumber || '-') + ' 行';
+    if (grid) {
+      var boxes = [
+        ['部门', detail.department || '-'],
+        ['年度', detail.year || '-'],
+        ['事项名称', detail.itemName || '-'],
+        ['子项名称', detail.subitemName || '-'],
+        ['权力类型', detail.powerType || '-'],
+        ['行使主体', detail.exercisingBody || '-'],
+        ['承办机构', detail.undertakingOrg || '-'],
+        ['实施层级及权限', detail.implementationLevelAuthority || '-'],
+        ['部门职责', detail.departmentDuty || '-'],
+        ['责任事项内容', detail.responsibilityContent || '-'],
+        ['责任事项依据', detail.responsibilityBasis || '-'],
+        ['追责对象范围', detail.accountabilityScope || '-'],
+        ['追责情形', detail.accountabilitySituation || '-'],
+        ['备注', detail.remark || '-'],
+        ['状态', detail.status || '-']
+      ];
+      grid.innerHTML = boxes.map(function(item) {
+        return '<div class="evidence-box"><div class="label">' + escapeHtml(item[0]) + '</div><div class="value">' + escapeHtml(item[1]).replace(/\n/g, '<br>') + '</div></div>';
+      }).join('');
+    }
+    if (raw) {
+      var rawText = detail.rawJson || '';
+      if (rawText.length > 700) rawText = rawText.slice(0, 700) + '...';
+      raw.textContent = '原始记录：' + rawText;
+    }
+  } catch (err) {
+    if (summary) summary.textContent = err.message || '详情加载失败';
+    showToast('详情加载失败');
+  }
+}
+
+function closeRightsDetail(event) {
+  if (event && event.target && event.target.id !== 'rightsDetailModal') return;
+  var modal = document.getElementById('rightsDetailModal');
+  if (modal) modal.classList.remove('show');
+}
+
+async function initRightsLedgerPage() {
+  bindRightsLedgerEvents();
+  if (!rightsLedgerState.optionsLoaded) {
+    try {
+      await loadRightsLedgerMeta();
+    } catch (err) {
+      setRightsLedgerHint(err.message || '权责清单基础数据加载失败');
+      showToast('权责清单基础数据加载失败');
+      return;
+    }
+  }
+  try {
+    await loadRightsLedgerPage(1);
+  } catch (err2) {
+    setRightsLedgerHint(err2.message || '权责清单加载失败');
+    showToast('权责清单加载失败');
+  }
+}
+
+// ===== 导航切换 =====
+var mainEl = document.getElementById('mainContent');
+var breadcrumb = document.getElementById('breadcrumbText');
+
+function activateNavPage(pageId, group, activeLink, childTitle) {
+  var mTitleEl = group.querySelector('.group-title span:not(.group-icon):not(.group-arrow)');
+  var mTitle = mTitleEl ? mTitleEl.textContent.trim() : '';
+  var trail = childTitle ? mTitle + ' / ' + childTitle : mTitle;
+  if (activeLink && activeLink.dataset.path) {
+    trail = activeLink.dataset.path;
+  } else if (activeLink) {
+    var subgroup = activeLink.closest('.nav-subgroup');
+    var sTitleEl = subgroup ? subgroup.querySelector('.subgroup-title span:first-child') : null;
+    var sTitle = sTitleEl ? sTitleEl.textContent.trim() : '';
+    if (sTitle) trail = mTitle + ' / ' + sTitle + ' / ' + childTitle;
+  }
+
+  document.querySelectorAll('.nav-group .group-children a').forEach(function(a){ a.classList.remove('active'); });
+  if (activeLink) activeLink.classList.add('active');
+  document.querySelectorAll('.nav-group').forEach(function(g){ g.classList.remove('active'); });
+  group.classList.add('active');
+  if (!group.classList.contains('direct')) group.classList.add('open');
+
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+
+  breadcrumb.textContent = trail;
+
+  var isDark = pageId.startsWith('m6-');
+  if (isDark) {
+    document.body.classList.add('dark-global');
+    if (!document.querySelector('.dark-header')) {
+      var dh = document.createElement('header');
+      dh.className = 'dark-header';
+      dh.innerHTML = '<div class="breadcrumb">📍 <span id="darkBreadcrumb">' + trail + '</span></div><div class="user-area"><span class="badge">管理员</span><span class="username">张主任</span><div class="avatar">张</div></div>';
+      document.querySelector('.main').insertBefore(dh, document.querySelector('.main').firstChild);
+    }
+    var darkBreadcrumb = document.getElementById('darkBreadcrumb');
+    if (darkBreadcrumb) darkBreadcrumb.textContent = trail;
+    var h = document.querySelector('.header');
+    if (h) h.style.display = 'none';
+    var dh2 = document.querySelector('.dark-header');
+    if (dh2) dh2.style.display = 'flex';
+  } else {
+    document.body.classList.remove('dark-global');
+    var dh3 = document.querySelector('.dark-header');
+    if (dh3) dh3.style.display = 'none';
+    var h2 = document.querySelector('.header');
+    if (h2) h2.style.display = 'flex';
+  }
+
+  if (pageId.startsWith('m6-')) setTimeout(initCharts, 300);
+  if (pageId === 'm1-3') setTimeout(initRightsLedgerPage, 0);
+}
+
+document.querySelectorAll('.nav-group .group-children a').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    activateNavPage(this.dataset.page, this.closest('.nav-group'), this, this.textContent.trim());
+  });
+});
+
+// ===== 导航折叠 =====
+document.querySelectorAll('.nav-group .group-title').forEach(function(title) {
+  title.addEventListener('click', function() {
+    var group = this.closest('.nav-group');
+    if (group.classList.contains('placeholder')) return;
+    if (this.dataset.page) {
+      activateNavPage(this.dataset.page, group, null, '');
+      return;
+    }
+    group.classList.toggle('open');
+  });
+});
+
+
+document.querySelectorAll('.nav-subgroup .subgroup-title').forEach(function(title) {
+  title.addEventListener('click', function(e) {
+    e.stopPropagation();
+    this.closest('.nav-subgroup').classList.toggle('open');
+  });
+});
+// ===== ECharts 暗色主题配置 =====
+var darkTextColor = 'rgba(255,255,255,.6)';
+var darkAxisColor = 'rgba(100,140,255,.2)';
+
+function darkAxis(){ return { axisLine:{lineStyle:{color:darkAxisColor}}, axisTick:{lineStyle:{color:darkAxisColor}}, axisLabel:{color:darkTextColor}, splitLine:{lineStyle:{color:'rgba(100,140,255,.08)'}} }; }
+
+var charts = {};
+function getChart(id) {
+  if (charts[id]) { charts[id].dispose(); }
+  var dom = document.getElementById(id);
+  if (!dom) return null;
+  charts[id] = echarts.init(dom, null, { devicePixelRatio: window.devicePixelRatio || 1 });
+  return charts[id];
+}
+
+function initCharts() {
+  var c, darkBg = 'transparent';
+
+  c = getChart('chart-grade');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'item'},
+    legend: {bottom:0,textStyle:{color:darkTextColor}},
+    series: [{
+      type:'pie', radius:['45%','72%'], center:['50%','48%'],
+      label: {color:darkTextColor, formatter:'{b}\n{d}%'},
+      emphasis: {label:{fontSize:16,fontWeight:'bold'}},
+      data: [
+        {value:15,name:'优秀',itemStyle:{color:'#00b96b'}},
+        {value:18,name:'良好',itemStyle:{color:'#1677ff'}},
+        {value:6,name:'合格',itemStyle:{color:'#fa8c16'}},
+        {value:3,name:'不合格',itemStyle:{color:'#f5222d'}}
+      ]
+    }]
+  });
+
+  c = getChart('chart-trend');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'axis'},
+    xAxis: [{data:['2025Q1','2025Q2','2025Q3','2025Q4','2026Q1','2026Q2'],...darkAxis()}],
+    yAxis: [{...darkAxis(),name:'效益指数',nameTextStyle:{color:darkTextColor}}],
+    series: [
+      {name:'编制效益',type:'line',data:[72,75,78,76,82,85],smooth:true,lineStyle:{color:'#1677ff',width:3},itemStyle:{color:'#1677ff'},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(22,119,255,.25)'},{offset:1,color:'rgba(22,119,255,.02)'}])},symbol:'circle',symbolSize:8},
+      {name:'履职效能',type:'line',data:[68,70,73,75,78,80],smooth:true,lineStyle:{color:'#00b96b',width:3},itemStyle:{color:'#00b96b'},areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,185,107,.25)'},{offset:1,color:'rgba(0,185,107,.02)'}])},symbol:'circle',symbolSize:8}
+    ]
+  });
+
+  c = getChart('chart-top10');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'axis',axisPointer:{type:'shadow'}},
+    xAxis: [{type:'value',...darkAxis()}],
+    yAxis: [{type:'category',...darkAxis(),data:['权责清单未及时更新(8部门)','编制使用率低于核定标准(6部门)','内设机构超出三定规定(5部门)','跨部门协同响应超时(12部门)','编外人员聘用超比例(4部门)','领导职数配备超核定数(3部门)','行政审批事项超时办结(7部门)','核心岗位职责边界不清(5部门)','政务信息公开不达标(9部门)','公共服务满意度低于80%(3部门)']}],
+    series: [{type:'bar',data:[32,28,25,22,18,15,12,9,7,5],barWidth:16,
+      itemStyle:{borderRadius:[0,4,4,0],color:new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#1677ff'},{offset:1,color:'#69b1ff'}])},
+      label:{show:true,position:'right',color:darkTextColor}}]
+  });
+
+  c = getChart('chart-satisfy');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {},
+    radar: {
+      center:['50%','50%'],radius:'65%',
+      axisName:{color:darkTextColor},
+      indicator: [{name:'履职响应时效',max:5},{name:'业务配合度',max:5},{name:'职责边界清晰度',max:5},{name:'联合工作成效',max:5}],
+      splitArea:{areaStyle:{color:['rgba(100,140,255,.02)','rgba(100,140,255,.04)']}},
+      axisLine:{lineStyle:{color:darkAxisColor}},splitLine:{lineStyle:{color:darkAxisColor}}
+    },
+    series: [
+      {name:'对口部门',type:'radar',data:[{value:[4.2,3.8,4.5,4.0]}],symbol:'circle',symbolSize:5,lineStyle:{color:'#1677ff',width:2},areaStyle:{color:'rgba(22,119,255,.15)'},itemStyle:{color:'#1677ff'}},
+      {name:'编办评价',type:'radar',data:[{value:[4.5,4.0,4.2,3.9]}],symbol:'circle',symbolSize:5,lineStyle:{color:'#00b96b',width:2},areaStyle:{color:'rgba(0,185,107,.15)'},itemStyle:{color:'#00b96b'}}
+    ]
+  });
+
+  c = getChart('chart-radar');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {},
+    radar: {
+      center:['50%','50%'],radius:'60%',
+      axisName:{color:darkTextColor},
+      indicator: [{name:'共性指标',max:100},{name:'行业个性',max:100},{name:'创新激励',max:100},{name:'编制管理',max:100},{name:'履职效能',max:100},{name:'社会评价',max:100}],
+      splitArea:{areaStyle:{color:['rgba(100,140,255,.02)','rgba(100,140,255,.04)']}},
+      axisLine:{lineStyle:{color:darkAxisColor}},splitLine:{lineStyle:{color:darkAxisColor}}
+    },
+    series: [{type:'radar',data:[{value:[88,92,76,85,90,82]}],symbol:'circle',symbolSize:5,lineStyle:{color:'#1677ff',width:2},areaStyle:{color:'rgba(22,119,255,.15)'},itemStyle:{color:'#1677ff'}}]
+  });
+
+  c = getChart('chart-year');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'axis'},
+    xAxis: [{data:['2022','2023','2024','2025','2026'],...darkAxis()}],
+    yAxis: [{...darkAxis(),min:60,max:100}],
+    series: [{type:'bar',data:[78,80,83,85,86.5],barWidth:28,itemStyle:{borderRadius:[4,4,0,0],color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#69b1ff'},{offset:1,color:'#1677ff'}])},
+      markLine:{data:[{type:'average',name:'均值'}],lineStyle:{color:'#fa8c16',type:'dashed'},label:{color:darkTextColor}},
+      label:{show:true,position:'top',color:'#69b1ff',fontWeight:'bold'}}]
+  });
+
+  c = getChart('chart-rank');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'axis',axisPointer:{type:'shadow'}},
+    xAxis: [{type:'value',...darkAxis()}],
+    yAxis: [{type:'category',...darkAxis(),data:['市财政局','市经信局','市发改委','市交通局','市住建局','市教育局','市卫健委','市城管局','市文旅局','市生态环境局']}],
+    series: [{type:'bar',barWidth:16,data:[92,88,86.5,85,83,81,78,75,72,68],
+      itemStyle:{borderRadius:[0,4,4,0],
+        color:function(p){ var clrs=['#00b96b','#00b96b','#1677ff','#1677ff','#1677ff','#fa8c16','#fa8c16','#fa8c16','#f5222d','#f5222d']; return clrs[p.dataIndex]; }},
+      label:{show:true,position:'right',color:darkTextColor}}]
+  });
+
+  c = getChart('chart-heat');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {},
+    xAxis: [{...darkAxis(),data:['履职时效','协同配合','服务质量','信息公开','依法行政']}],
+    yAxis: [{...darkAxis(),data:['发改','教育','卫健','城管','交通','财政','经信','住建']}],
+    visualMap: {min:50,max:100,calculable:true,orient:'horizontal',left:'center',bottom:0,inRange:{color:['#0d1440','#1677ff','#69b1ff','#bae0ff']},textStyle:{color:darkTextColor}},
+    series: [{type:'heatmap',data:[[0,0,88],[1,0,82],[2,0,90],[3,0,85],[4,0,92],[0,1,78],[1,1,75],[2,1,85],[3,1,80],[4,1,70],[0,2,65],[1,2,60],[2,2,72],[3,2,55],[4,2,68],[0,3,80],[1,3,78],[2,3,82],[3,3,75],[4,3,85],[0,4,72],[1,4,70],[2,4,68],[3,4,65],[4,4,75]],label:{show:true,color:darkTextColor}}]
+  });
+
+  c = getChart('chart-heatmap');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {},
+    xAxis: [{...darkAxis(),data:['编制总量','在编人数','空闲编制','需求缺口']}],
+    yAxis: [{...darkAxis(),data:['发改','教育','卫健','城管','交通','财政','经信','住建','文旅','生态环境']}],
+    visualMap: {min:-30,max:30,calculable:true,orient:'horizontal',left:'center',bottom:0,inRange:{color:['#00b96b','#0d1440','#f5222d']},textStyle:{color:darkTextColor}},
+    series: [{type:'heatmap',data:[[0,0,25],[1,0,18],[2,0,7],[3,0,-5],[0,1,18],[1,1,22],[2,1,-4],[3,1,-8],[0,2,12],[1,2,8],[2,2,4],[3,2,-3],[0,3,8],[1,3,5],[2,3,3],[3,3,-2],[0,4,15],[1,4,10],[2,4,5],[3,4,-6],[0,5,20],[1,5,16],[2,5,4],[3,5,-4],[0,6,10],[1,6,7],[2,6,3],[3,6,-5],[0,7,6],[1,7,3],[2,7,3],[3,7,-1],[0,8,5],[1,8,2],[2,8,3],[3,8,-2],[0,9,4],[1,9,1],[2,9,3],[3,9,-1]],label:{show:true,color:darkTextColor}}]
+  });
+
+  c = getChart('chart-comply');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'item'},
+    legend: {bottom:0,textStyle:{color:darkTextColor}},
+    series: [{type:'pie',radius:'65%',center:['50%','48%'],
+      label:{color:darkTextColor,formatter:'{b}: {c}个 ({d}%)'},
+      data: [{value:38,name:'合规',itemStyle:{color:'#00b96b'}},{value:4,name:'基本合规',itemStyle:{color:'#fa8c16'}},{value:2,name:'不合规',itemStyle:{color:'#f5222d'}}]
+    }]
+  });
+
+  c = getChart('chart-status');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'item'},
+    legend: {bottom:0,textStyle:{color:darkTextColor}},
+    series: [{type:'pie',radius:['48%','72%'],center:['50%','48%'],
+      label:{color:darkTextColor,formatter:'{b}: {c} 项'},
+      data: [{value:15,name:'已销号',itemStyle:{color:'#00b96b'}},{value:8,name:'整改中',itemStyle:{color:'#fa8c16'}},{value:5,name:'待整改',itemStyle:{color:'#1677ff'}},{value:3,name:'逾期',itemStyle:{color:'#f5222d'}}]
+    }]
+  });
+
+  c = getChart('chart-complete');
+  if (c) c.setOption({
+    backgroundColor: darkBg,
+    tooltip: {trigger:'axis',axisPointer:{type:'shadow'}},
+    xAxis: [{type:'value',max:100,...darkAxis()}],
+    yAxis: [{type:'category',...darkAxis(),data:['市教育局','市交通局','市发改委','市城管局','市住建局','市财政局','市经信局','市卫健委','市文旅局','市生态环境局']}],
+    series: [{type:'bar',barWidth:16,data:[100,100,85,70,65,60,55,40,35,20],
+      itemStyle:{borderRadius:[0,4,4,0],
+        color:function(p){ var vs=[100,100,85,70,65,60,55,40,35,20]; if(vs[p.dataIndex]>=80) return '#00b96b'; if(vs[p.dataIndex]>=50) return '#fa8c16'; return '#f5222d'; }},
+      label:{show:true,position:'right',formatter:'{c}%',color:darkTextColor}}]
+  });
+}
+
+window.addEventListener('resize', function(){ Object.values(charts).forEach(function(c){ c && c.resize(); }); });
+
+// 初始加载
+document.addEventListener('DOMContentLoaded', function(){
+  var dh = document.createElement('header');
+  dh.className = 'dark-header';
+  dh.innerHTML = '<div class="breadcrumb">📍 <span id="darkBreadcrumb">大数据可视化驾驶舱 / 全市总览大屏</span></div><div class="user-area"><span class="badge">管理员</span><span class="username">张主任</span><div class="avatar">张</div></div>';
+  document.querySelector('.main').insertBefore(dh, document.querySelector('.main').firstChild);
+  var h = document.querySelector('.header'); if(h) h.style.display = 'none';
+  setTimeout(initCharts, 500);
+});
+</script>
+</body>
+</html>

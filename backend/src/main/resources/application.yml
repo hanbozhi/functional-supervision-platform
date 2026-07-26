@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: functional-supervision-platform
+
+app:
+  database:
+    path: ${PLATFORM_DB_PATH:}
+  security:
+    mock-current-username: ${MOCK_CURRENT_USERNAME:zhang.zhuren}
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://127.0.0.1:5173
+      - http://localhost:5174
+      - http://127.0.0.1:5174
