@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
 export async function request(path, params = {}, options = {}) {
   const url = new URL(`${API_BASE}${path}`)
@@ -8,10 +8,11 @@ export async function request(path, params = {}, options = {}) {
     }
   })
 
+  const isFormData = options.body instanceof FormData
   const response = await fetch(url, {
     method: options.method || 'GET',
-    headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
-    body: options.body ? JSON.stringify(options.body) : undefined,
+    headers: options.body && !isFormData ? { 'Content-Type': 'application/json' } : undefined,
+    body: options.body ? (isFormData ? options.body : JSON.stringify(options.body)) : undefined,
   })
   if (!response.ok) {
     const text = await response.text()

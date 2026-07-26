@@ -34,6 +34,7 @@ backend/src/main/resources/db/migration
 V001__create_common_tables.sql
 V002__seed_common_development_data.sql
 V003__extend_org_units_for_management.sql
+V004__create_three_fixed_plan_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -77,6 +78,10 @@ FAILURE
 | schema_migrations | 数据库迁移执行历史 |
 | org_units | 部门、机构及上下级关系 |
 | org_unit_verifications | 单位架构历次核验结果、意见、核验人和时间 |
+| three_fixed_plans | 按机构保存三定方案主档及当前生效版本 |
+| three_fixed_plan_versions | 三定方案结构化字段、来源、解析和复核版本 |
+| three_fixed_parse_results | 文档字段提取原值、人工修正值和来源片段 |
+| three_fixed_field_mappings | XLSX、DOCX、PDF全局标签别名映射 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -144,6 +149,28 @@ REJECTED
 历次核验记录保存在 `org_unit_verifications`。机构不做物理删除；存在子机构时禁止停用。创建人、修改人和核验人统一关联 `sys_users` 中的集中模拟用户，当前默认为“张主任”。
 
 `ROOT` 和 `GROUP` 仅用于组织树结构，不计入机构总数、行政机关和事业单位统计。核定编制未填写时保存为 `NULL`，页面不使用原型中的演示数字。
+
+## 三定方案信息归集
+
+每个启用机构最多有一个 `three_fixed_plans` 主档，版本保存在
+`three_fixed_plan_versions`。同一机构同时只允许一个未确认版本；确认后由主档的
+`current_version_id` 指向当前生效版本，不自动回写 `org_units`。
+
+原始上传文件复用 `sys_attachments`：
+
+```text
+business_type = THREE_FIXED_PLAN_VERSION
+business_id = three_fixed_plan_versions.id
+```
+
+附件默认保存在：
+
+```text
+backend/storage/three-fixed
+```
+
+可通过 `THREE_FIXED_STORAGE_PATH` 覆盖。数据库只保存相对路径，附件目录不纳入Git。
+支持 `.xlsx`、`.docx`、`.pdf`，单文件最大10MB，单批最多20个文件且总大小最大50MB。
 
 ## 权责清单重新导入
 

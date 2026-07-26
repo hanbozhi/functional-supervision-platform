@@ -24,6 +24,7 @@ venv/
 *-wal
 *-shm
 *-journal
+backend/storage/
 
 # Environment files, credentials and local machine configuration
 .env

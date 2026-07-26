@@ -4,10 +4,16 @@ server:
 spring:
   application:
     name: functional-supervision-platform
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
 
 app:
   database:
     path: ${PLATFORM_DB_PATH:}
+  storage:
+    three-fixed-path: ${THREE_FIXED_STORAGE_PATH:backend/storage/three-fixed}
   security:
     mock-current-username: ${MOCK_CURRENT_USERNAME:zhang.zhuren}
   cors:
