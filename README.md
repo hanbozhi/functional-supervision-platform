@@ -20,8 +20,7 @@ backend/database/权责清单.sqlite
 
 该文件仅供本机运行，不纳入 Git。数据库可由以下内容重建：
 
-- `backend/src/main/resources/db/migration/V001__create_common_tables.sql`
-- `backend/src/main/resources/db/migration/V002__seed_common_development_data.sql`
+- `backend/src/main/resources/db/migration` 中的全部版本化 SQL（当前 V001-V003）
 - `scripts/import_rights_to_sqlite.py`
 - `scripts/requirements.txt`
 - `资料/各部门网上公示权责清单/各部门网上公示权责清单` 中的原始 Excel
@@ -41,7 +40,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-不要修改、改名或删除已经执行的 V001、V002。后续数据库结构变更必须新增更高版本迁移。
+不要修改、改名或删除已经执行的 V001、V002、V003。后续数据库结构变更必须新增更高版本迁移。
 
 ## 启动前端
 

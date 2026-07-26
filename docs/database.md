@@ -33,7 +33,7 @@ backend/src/main/resources/db/migration
 ```text
 V001__create_common_tables.sql
 V002__seed_common_development_data.sql
-V003__next_change.sql
+V003__extend_org_units_for_management.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -76,6 +76,7 @@ FAILURE
 |---|---|
 | schema_migrations | 数据库迁移执行历史 |
 | org_units | 部门、机构及上下级关系 |
+| org_unit_verifications | 单位架构历次核验结果、意见、核验人和时间 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -122,6 +123,27 @@ ORG_OPERATOR
 当前不包含真实登录认证，也没有预置密码。
 
 这些用户和角色表只用于模拟业务中的操作人、评分人、上传人、复核人和角色展示。项目不继续建设密码登录、会话、Token、权限菜单或接口鉴权；只有页面实际需要时才补充模拟数据。
+
+## 单位架构管理
+
+`org_units.status` 只表示生命周期状态，单位架构页面使用：
+
+```text
+ACTIVE
+INACTIVE
+```
+
+最新业务核验状态保存在 `org_units.verification_status`：
+
+```text
+PENDING
+VERIFIED
+REJECTED
+```
+
+历次核验记录保存在 `org_unit_verifications`。机构不做物理删除；存在子机构时禁止停用。创建人、修改人和核验人统一关联 `sys_users` 中的集中模拟用户，当前默认为“张主任”。
+
+`ROOT` 和 `GROUP` 仅用于组织树结构，不计入机构总数、行政机关和事业单位统计。核定编制未填写时保存为 `NULL`，页面不使用原型中的演示数字。
 
 ## 权责清单重新导入
 

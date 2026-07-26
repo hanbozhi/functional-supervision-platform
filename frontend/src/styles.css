@@ -312,3 +312,25 @@ table tbody tr:last-child td{border-bottom:none}
 .mock-row span:nth-child(2) { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 12000; min-width: 180px; max-width: 520px; padding: 10px 16px; border-radius: var(--radius-sm); background: rgba(17,24,39,.92); color: #fff; text-align: center; box-shadow: 0 8px 28px rgba(0,0,0,.18); font-size: 13px; }
 @media(max-width:1400px){ .analysis-grid,.placeholder-grid{grid-template-columns:1fr} }
+
+.org-tree-panel{max-height:calc(100vh - 150px);overflow:auto}
+.tree-header,.org-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.org-tree-node{width:100%;display:flex;align-items:center;gap:7px;border:0;background:transparent;color:var(--text-secondary);border-radius:6px;padding-top:8px;padding-bottom:8px;text-align:left;cursor:pointer;font-size:13px}
+.org-tree-node:hover{background:#f0f5ff;color:var(--primary)}
+.org-tree-node.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.org-tree-node.inactive{opacity:.55}
+.org-search{margin-top:16px}
+.org-search .form-item{min-width:130px}
+.org-actions{white-space:nowrap}.org-actions .btn{margin:2px}
+.org-modal-backdrop{position:fixed;inset:0;z-index:13000;background:rgba(15,23,42,.42);display:flex;align-items:center;justify-content:center;padding:24px}
+.org-modal{width:min(820px,96vw);max-height:90vh;overflow:auto;background:#fff;border-radius:var(--radius);padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.22)}
+.org-modal.compact{width:min(520px,96vw)}
+.org-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.org-modal-actions{justify-content:flex-end;margin-top:20px}
+.org-modal-hint{padding:12px 0;color:var(--text-secondary)}
+.org-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.org-detail-grid>div{padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:#fafbfc}
+.org-detail-grid span{display:block;color:var(--text-secondary);font-size:12px;margin-bottom:5px}
+.org-detail-grid b{font-size:13px;font-weight:600}
+.org-history-title{margin:18px 0 10px}
+@media(max-width:700px){.org-form-grid,.org-detail-grid{grid-template-columns:1fr}}

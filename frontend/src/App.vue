@@ -7,6 +7,7 @@ import {
   fetchRightsStats,
 } from './api'
 import staticPages from './staticPages'
+import OrgUnitManagement from './components/basic-info/OrgUnitManagement.vue'
 
 const navGroups = [
   {
@@ -326,7 +327,9 @@ onMounted(() => {
       </header>
 
       <div class="content" id="mainContent">
-        <section v-if="activePage === 'm1-3'" class="page active">
+        <OrgUnitManagement v-if="activePage === 'm1-1'" />
+
+        <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>
           <div class="card authority-ledger">
             <div class="card-header"><h3><span class="icon">🧾</span>责权清单管理</h3><span class="extra">SQLite 实时查询</span></div>

@@ -1,6 +1,6 @@
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080/api'
 
-async function request(path, params = {}) {
+export async function request(path, params = {}, options = {}) {
   const url = new URL(`${API_BASE}${path}`)
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
@@ -8,12 +8,22 @@ async function request(path, params = {}) {
     }
   })
 
-  const response = await fetch(url)
+  const response = await fetch(url, {
+    method: options.method || 'GET',
+    headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  })
   if (!response.ok) {
     const text = await response.text()
-    throw new Error(text || `请求失败：${response.status}`)
+    try {
+      const error = JSON.parse(text)
+      throw new Error(error.message || `请求失败：${response.status}`)
+    } catch (error) {
+      if (error instanceof SyntaxError) throw new Error(text || `请求失败：${response.status}`)
+      throw error
+    }
   }
-  return response.json()
+  return response.status === 204 ? null : response.json()
 }
 
 export function fetchRightsItems(params) {

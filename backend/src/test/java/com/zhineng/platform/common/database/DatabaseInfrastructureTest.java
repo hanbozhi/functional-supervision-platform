@@ -40,7 +40,7 @@ class DatabaseInfrastructureTest {
         runner.run(new DefaultApplicationArguments(new String[0]));
 
         assertEquals(
-                2,
+                3,
                 jdbcTemplate.queryForObject("SELECT count(*) FROM schema_migrations", Integer.class)
         );
         assertEquals(
@@ -120,7 +120,7 @@ class DatabaseInfrastructureTest {
         }
 
         assertEquals(
-                2,
+                3,
                 new JdbcTemplate(dataSource).queryForObject(
                         "SELECT count(*) FROM schema_migrations",
                         Integer.class
