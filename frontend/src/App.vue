@@ -9,6 +9,7 @@ import {
 import staticPages from './staticPages'
 import OrgUnitManagement from './components/basic-info/OrgUnitManagement.vue'
 import ThreeFixedPlanManagement from './components/basic-info/ThreeFixedPlanManagement.vue'
+import StaffingLedgerManagement from './components/basic-info/StaffingLedgerManagement.vue'
 
 const navGroups = [
   {
@@ -331,6 +332,8 @@ onMounted(() => {
         <OrgUnitManagement v-if="activePage === 'm1-1'" />
 
         <ThreeFixedPlanManagement v-else-if="activePage === 'm1-2'" />
+
+        <StaffingLedgerManagement v-else-if="activePage === 'm1-4'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>
