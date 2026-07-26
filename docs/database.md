@@ -36,6 +36,7 @@ V002__seed_common_development_data.sql
 V003__extend_org_units_for_management.sql
 V004__create_three_fixed_plan_tables.sql
 V005__create_staffing_ledger_tables.sql
+V006__create_core_function_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -87,6 +88,11 @@ FAILURE
 | staffing_change_logs | 台账新增、修改、批量修改和Excel导入的永久业务变更记录 |
 | staffing_import_batches | 编制人员台账Excel导入批次及成功、失败统计 |
 | staffing_import_errors | Excel导入逐行失败原因 |
+| department_core_functions | 按机构维护核心职能、行业标签和启停状态 |
+| department_duty_items | 三定或手工来源的可匹配职责条目及关键词 |
+| org_rights_department_mappings | org_units与权责清单部门名称的人工/自动映射 |
+| duty_match_runs | 每次职责关键词匹配的输入签名和汇总结果 |
+| duty_match_results | 正常匹配、职责缺失、未核定新增职责及人工复核历史 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -187,6 +193,21 @@ backend/storage/three-fixed
 每次新增、单条修改、批量修改或Excel导入都会生成 `staffing_change_logs` 记录，
 同时写入模块编码为 `M1-4` 的公共操作日志。Excel仅支持 `.xlsx`，单文件最大10MB；
 有效行逐条提交，失败行记录在导入错误表中，不影响其他有效行。
+
+## 部门核心职能清单库
+
+m1-5读取已确认三定方案的 `main_responsibilities` 生成可编辑职责候选，也允许完全
+手工维护。`rights_items` 作为当前本地“上报履职/权责事项”来源，通过
+`org_rights_department_mappings` 与机构关联。自动匹配只使用去重、去停用词后的
+人工可编辑关键词，默认阈值为50分；空关键词职责不会产生匹配。
+
+每次匹配写入新的 `duty_match_runs` 和 `duty_match_results`，重新匹配不覆盖历史。
+匹配结果允许两侧为空，但业务规则为：`MATCHED` 两侧必须存在，`DUTY_MISSING`
+只关联职责，`UNAPPROVED_NEW_DUTY` 只关联权责事项。该完整性由服务层校验。
+
+匹配结果只保存 `rights_items.id` 作为逻辑来源编号，并保存部门、事项名称及内容快照，
+不建立指向 `rights_items` 的外键。因此权责清单重新导入仍可清理自身四张表，不会被
+m1-5历史结果阻塞；运行记录中的权责数据签名用于提示结果已经过期。
 
 ## 权责清单重新导入
 
