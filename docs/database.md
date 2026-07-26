@@ -40,6 +40,7 @@ V006__create_core_function_tables.sql
 V007__create_evaluation_archive_tables.sql
 V008__create_indicator_management_tables.sql
 V009__create_counterpart_evaluation_tables.sql
+V010__create_internal_evaluation_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -116,6 +117,15 @@ FAILURE
 | counterpart_anomaly_runs | 确定性异常规则检测批次 |
 | counterpart_anomaly_cases | 异常评分、分派和复核状态 |
 | counterpart_anomaly_reviews | 异常分派、采纳及驳回历史 |
+| internal_evaluation_tasks | 专项、年度和机构调整后内部评估任务 |
+| internal_evaluation_task_orgs | 任务参评机构 |
+| internal_evaluation_assignments | 机构评分人和复核人分配 |
+| internal_evaluation_indicator_snapshots | 发布任务冻结的三级指标及规则快照 |
+| internal_evaluation_score_sheets | 每个任务机构唯一评分表及总分 |
+| internal_evaluation_score_entries | 逐项得分、依据、备注和人工否决标记 |
+| internal_evaluation_score_materials | 评分项与公共附件的关联 |
+| internal_evaluation_reviews | 提交、退回和确认复核历史 |
+| internal_evaluation_status_history | 任务及评分表关键状态变化 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -291,6 +301,26 @@ m2-1～m2-4共同使用V009建立的关系、问卷、匿名答卷和异常复�
 模拟短信写入`counterpart_push_logs`，不会调用外部服务。异常检测使用端点分、
 与同题均值偏差及短时填写三类确定性规则；均值偏差规则至少需要5个同题样本。
 每次检测创建新的运行批次，不覆盖历史；分派、采纳和驳回均保存在复核历史表中。
+
+## 编办评实绩（内部评估）
+
+m2-5和m2-6共同使用V010。任务只允许选择`PUBLISHED`指标版本；发布任务时将启用的
+三级指标名称、标准分、权重、评价方式和评分规则复制到
+`internal_evaluation_indicator_snapshots`，因此后续指标配置变化不影响已发布任务。
+每个参评机构只有一份评分表，状态依次为`NOT_STARTED`、`DRAFT`、`SUBMITTED`、
+`RETURNED`或`CONFIRMED`。提交后只读，退回后才能再次暂存和提交。
+
+评分佐证复用`sys_attachments`，约定：
+
+```text
+business_type = INTERNAL_SCORE_ENTRY
+business_id = internal_evaluation_score_entries.id
+```
+
+文件默认保存到`backend/storage/internal-evaluation`，可通过
+`INTERNAL_EVALUATION_STORAGE_PATH`覆盖。数据库只保存相对路径，读取时必须经过存储
+根目录安全解析。支持PDF、图片、Office和ZIP，单文件最大10MB；PDF和图片可预览，
+其余文件只下载。
 
 ## 权责清单重新导入
 
