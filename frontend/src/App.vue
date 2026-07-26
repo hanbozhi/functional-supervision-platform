@@ -12,6 +12,9 @@ import ThreeFixedPlanManagement from './components/basic-info/ThreeFixedPlanMana
 import StaffingLedgerManagement from './components/basic-info/StaffingLedgerManagement.vue'
 import CoreFunctionManagement from './components/basic-info/CoreFunctionManagement.vue'
 import EvaluationArchiveManagement from './components/basic-info/EvaluationArchiveManagement.vue'
+import IndicatorSystemInitialization from './components/basic-info/IndicatorSystemInitialization.vue'
+import IndicatorDynamicManagement from './components/basic-info/IndicatorDynamicManagement.vue'
+import IndicatorTemplateLibrary from './components/basic-info/IndicatorTemplateLibrary.vue'
 
 const navGroups = [
   {
@@ -35,7 +38,7 @@ const navGroups = [
         children: [
           ['m1-7', '指标体系初始化配置'],
           ['m1-8', '指标动态管理功能'],
-          ['m1-9', '评分规则配置'],
+          ['m1-9', '指标模板库管理'],
         ],
       },
     ],
@@ -65,7 +68,7 @@ const pageMeta = {
   'm1-6': ['历史评估档案电子化管理', '归档历年评估材料、评分结果、整改闭环资料。'],
   'm1-7': ['指标体系初始化配置', '按对象类型初始化一级、二级、三级指标及权重。'],
   'm1-8': ['指标动态管理功能', '维护指标版本、启停状态、适用对象和规则变更。'],
-  'm1-9': ['评分规则配置', '配置评分公式、扣分规则、阈值和样例指标。'],
+  'm1-9': ['指标模板库管理', '保存完整指标体系快照，支持预览、复制和模板初始化。'],
   'm2-1': ['评价关系图谱', '配置评价对象之间的横向协同评价关系。'],
   'm2-2': ['在线匿名问卷', '面向评价主体配置匿名问卷和量表规则。'],
   'm2-3': ['评价异常识别', '识别集中打分、异常低分、重复提交等异常样本。'],
@@ -340,6 +343,12 @@ onMounted(() => {
         <CoreFunctionManagement v-else-if="activePage === 'm1-5'" />
 
         <EvaluationArchiveManagement v-else-if="activePage === 'm1-6'" />
+
+        <IndicatorSystemInitialization v-else-if="activePage === 'm1-7'" />
+
+        <IndicatorDynamicManagement v-else-if="activePage === 'm1-8'" />
+
+        <IndicatorTemplateLibrary v-else-if="activePage === 'm1-9'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>
