@@ -14,6 +14,7 @@ app:
     path: ${PLATFORM_DB_PATH:}
   storage:
     three-fixed-path: ${THREE_FIXED_STORAGE_PATH:backend/storage/three-fixed}
+    evaluation-archives-path: ${EVALUATION_ARCHIVE_STORAGE_PATH:backend/storage/evaluation-archives}
   security:
     mock-current-username: ${MOCK_CURRENT_USERNAME:zhang.zhuren}
   cors:
