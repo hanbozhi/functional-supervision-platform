@@ -20,7 +20,7 @@ backend/database/权责清单.sqlite
 
 该文件仅供本机运行，不纳入 Git。数据库可由以下内容重建：
 
-- `backend/src/main/resources/db/migration` 中的全部版本化 SQL（当前 V001-V004）
+- `backend/src/main/resources/db/migration` 中的全部版本化 SQL（当前 V001-V013）
 - `scripts/import_rights_to_sqlite.py`
 - `scripts/requirements.txt`
 - `资料/各部门网上公示权责清单/各部门网上公示权责清单` 中的原始 Excel
@@ -40,7 +40,7 @@ cd backend
 mvn spring-boot:run
 ```
 
-不要修改、改名或删除已经执行的 V001、V002、V003、V004。后续数据库结构变更必须新增更高版本迁移。
+不要修改、改名或删除已经执行的 V001～V013。后续数据库结构变更必须新增更高版本迁移。
 
 ## 启动前端
 
@@ -76,6 +76,8 @@ npm run build
 - `PLATFORM_DB_PATH`：覆盖 SQLite 路径。相对路径按项目根目录解析。
 - `MOCK_CURRENT_USERNAME`：覆盖集中模拟用户，默认 `zhang.zhuren`（张主任）。
 - `THREE_FIXED_STORAGE_PATH`：覆盖三定方案附件目录，默认 `backend/storage/three-fixed`。
+- `PUBLIC_EVALUATION_STORAGE_PATH`：覆盖群众评价图片目录，默认 `backend/storage/public-evaluation`。
+- `SELF_EVALUATION_STORAGE_PATH`：覆盖部门自评材料目录，默认 `backend/storage/self-evaluation`。
 
 不要提交 `.env`、密码、Token、API Key、证书或本机绝对路径配置。
 

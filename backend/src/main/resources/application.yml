@@ -18,6 +18,7 @@ app:
     internal-evaluation-path: ${INTERNAL_EVALUATION_STORAGE_PATH:backend/storage/internal-evaluation}
     org-performance-path: ${ORG_PERFORMANCE_STORAGE_PATH:backend/storage/org-performance}
     public-evaluation-path: ${PUBLIC_EVALUATION_STORAGE_PATH:backend/storage/public-evaluation}
+    self-evaluation-path: ${SELF_EVALUATION_STORAGE_PATH:backend/storage/self-evaluation}
   security:
     mock-current-username: ${MOCK_CURRENT_USERNAME:zhang.zhuren}
   cors:

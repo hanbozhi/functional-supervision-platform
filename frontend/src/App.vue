@@ -26,6 +26,9 @@ import OrganizationPerformanceCorrections from './components/evaluation/Organiza
 import PublicServiceEvaluation from './components/evaluation/PublicServiceEvaluation.vue'
 import PublicEvaluationManagement from './components/evaluation/PublicEvaluationManagement.vue'
 import PublicEvaluationImport from './components/evaluation/PublicEvaluationImport.vue'
+import SelfEvaluationTasks from './components/evaluation/SelfEvaluationTasks.vue'
+import SelfEvaluationMaterials from './components/evaluation/SelfEvaluationMaterials.vue'
+import SelfEvaluationWarnings from './components/evaluation/SelfEvaluationWarnings.vue'
 
 const navGroups = [
   {
@@ -59,8 +62,8 @@ const navGroups = [
     icon: '📊',
     title: '四方多维评价管理',
     children: [
-      { title: '对口部门评价', children: [['m2-1', '协作关系自动匹配'], ['m2-2', '评价问卷管理/推送'], ['m2-3', '批量匿名评价支持'], ['m2-4', '异常评分预警与复核']] },
-      { title: '编办评实绩（内部评估）', children: [['m2-5', '评价任务分类管理'], ['m2-6', '编办在线打分评价']] },
+      { title: '对口部门评协作', children: [['m2-1', '协作关系自动匹配'], ['m2-2', '评价问卷管理/推送'], ['m2-3', '批量匿名评价支持'], ['m2-4', '异常评分预警与复核']] },
+      { title: '编办评履职', children: [['m2-5', '评价任务分类管理'], ['m2-6', '编办在线打分评价']] },
       { title: '组织部评绩效', children: [['m2-7', '绩效考核数据管理'], ['m2-8', '组织部二次修正评价']] },
       { title: '群众评服务', children: [['m2-9', '政务服务评价入口'], ['m2-10', '评价数据管理与隐私脱敏'], ['m2-11', '12345及政务平台评价归集']] },
       { title: '部门自评管理', children: [['m2-12', '自评任务管理'], ['m2-13', '佐证材料上传与分类'], ['m2-14', '自评材料完整性预警']] },
@@ -383,6 +386,12 @@ onMounted(() => {
         <PublicEvaluationManagement v-else-if="activePage === 'm2-10'" />
 
         <PublicEvaluationImport v-else-if="activePage === 'm2-11'" />
+
+        <SelfEvaluationTasks v-else-if="activePage === 'm2-12'" />
+
+        <SelfEvaluationMaterials v-else-if="activePage === 'm2-13'" />
+
+        <SelfEvaluationWarnings v-else-if="activePage === 'm2-14'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>

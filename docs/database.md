@@ -43,6 +43,7 @@ V009__create_counterpart_evaluation_tables.sql
 V010__create_internal_evaluation_tables.sql
 V011__create_org_performance_tables.sql
 V012__create_public_service_evaluation_tables.sql
+V013__create_self_evaluation_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -142,6 +143,15 @@ FAILURE
 | public_privacy_access_audits | 已批准敏感原文访问审计 |
 | public_evaluation_import_batches | 12345及政务平台本地文件归集批次 |
 | public_evaluation_import_errors | 外部评价归集逐行错误 |
+| self_evaluation_tasks | 年度或专项部门自评任务 |
+| self_evaluation_task_orgs | 任务参评机构、进度、总分和复核状态 |
+| self_evaluation_indicator_snapshots | 发布任务冻结的三级指标及材料要求 |
+| self_evaluation_entries | 机构逐指标自评分、履职说明和完成情况 |
+| self_evaluation_materials | 自评佐证材料分类、版本和逻辑状态 |
+| self_evaluation_status_history | 自评任务及机构表单状态历史 |
+| self_evaluation_warning_runs | 确定性材料完整性检查批次 |
+| self_evaluation_warnings | 缺失、数量、格式、命名和逾期预警 |
+| self_evaluation_reminder_logs | 不发送真实短信的本地模拟提醒日志 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
@@ -388,6 +398,43 @@ business_id = org_performance_corrections.id
 
 文件默认保存到`backend/storage/org-performance`，可通过`ORG_PERFORMANCE_STORAGE_PATH`
 覆盖；数据库只保存相对路径，下载时必须通过存储根目录安全解析。
+
+## 群众评服务
+
+m2-9～m2-11共同使用V012。`public_service_items`维护本地服务事项；
+`public_evaluations`统一保存本地评价和XLSX、CSV、JSON归集评价，原始导入内容保存在
+`raw_json`且不会被人工处理覆盖。姓名、手机号和身份证号默认不通过普通详情接口返回，
+敏感原文仅在模拟访问申请批准后返回并写入`public_privacy_access_audits`。
+确定性文字及评分规则生成`POSITIVE`、`NEUTRAL`、`NEGATIVE`标签，人工调整会标记为
+`MANUAL`，不宣称使用AI或NLP。
+
+群众评价图片复用`sys_attachments`，约定：
+
+```text
+business_type = PUBLIC_EVALUATION
+business_id = public_evaluations.id
+```
+
+默认目录为`backend/storage/public-evaluation`，可通过
+`PUBLIC_EVALUATION_STORAGE_PATH`覆盖。
+
+## 部门自评管理
+
+m2-12～m2-14共同使用V013。任务只能选择已发布指标版本；发布时将启用三级指标复制到
+`self_evaluation_indicator_snapshots`，随后指标体系变化不影响已发布任务。每个参评机构
+拥有一套`self_evaluation_entries`，支持暂存、提交、退回重提和确认完成。
+
+自评材料复用`sys_attachments`，约定：
+
+```text
+business_type = SELF_EVALUATION_ENTRY
+business_id = self_evaluation_entries.id
+```
+
+`self_evaluation_materials`保存分类、版本组、当前版本和逻辑状态；替换不删除历史文件。
+默认目录为`backend/storage/self-evaluation`，可通过`SELF_EVALUATION_STORAGE_PATH`覆盖。
+V013规则检查保存新的运行批次及预警历史，检查缺失、数量不足、格式、命名、材料日期和
+截止日期；提醒只写入`self_evaluation_reminder_logs`，不发送真实短信。
 
 重导入采用全有或全无事务：源目录为空、任一文件转换/解析失败，或最终生成 0 条 `rights_items` 时，整次刷新都会回滚，保留导入前的四张权责表数据。只有全部来源文件成功后才提交新数据。
 
