@@ -23,6 +23,9 @@ import InternalEvaluationTasks from './components/evaluation/InternalEvaluationT
 import InternalScoringWorkbench from './components/evaluation/InternalScoringWorkbench.vue'
 import OrganizationPerformanceData from './components/evaluation/OrganizationPerformanceData.vue'
 import OrganizationPerformanceCorrections from './components/evaluation/OrganizationPerformanceCorrections.vue'
+import PublicServiceEvaluation from './components/evaluation/PublicServiceEvaluation.vue'
+import PublicEvaluationManagement from './components/evaluation/PublicEvaluationManagement.vue'
+import PublicEvaluationImport from './components/evaluation/PublicEvaluationImport.vue'
 
 const navGroups = [
   {
@@ -59,8 +62,8 @@ const navGroups = [
       { title: '对口部门评价', children: [['m2-1', '协作关系自动匹配'], ['m2-2', '评价问卷管理/推送'], ['m2-3', '批量匿名评价支持'], ['m2-4', '异常评分预警与复核']] },
       { title: '编办评实绩（内部评估）', children: [['m2-5', '评价任务分类管理'], ['m2-6', '编办在线打分评价']] },
       { title: '组织部评绩效', children: [['m2-7', '绩效考核数据管理'], ['m2-8', '组织部二次修正评价']] },
-      { title: '机构自评功能', children: [['m2-9', '自评结果比对']] },
-      { title: '服务对象满意度评价', children: [['m2-10', '隐私保护与脱敏'], ['m2-11', '服务对象名单抽取'], ['m2-12', '问卷短信推送'], ['m2-13', '满意度自动汇总'], ['m2-14', '低分样本核查']] },
+      { title: '群众评服务', children: [['m2-9', '政务服务评价入口'], ['m2-10', '评价数据管理与隐私脱敏'], ['m2-11', '12345及政务平台评价归集']] },
+      { title: '部门自评管理', children: [['m2-12', '自评任务管理'], ['m2-13', '佐证材料上传与分类'], ['m2-14', '自评材料完整性预警']] },
     ],
   },
   { id: 'm4', icon: '🗂️', title: '数据采集与评估', children: [{ title: '', children: [['m4-1', '数据采集与解析'], ['m4-2', 'AI评估模块']] }] },
@@ -86,12 +89,12 @@ const pageMeta = {
   'm2-6': ['编办在线打分评价', '按任务指标快照逐项评分、上传佐证并完成提交和复核。'],
   'm2-7': ['绩效考核数据管理', '通过本地XLSX模拟组织部绩效数据同步，维护字段映射和逐行校验结果。'],
   'm2-8': ['组织部二次修正评价', '保留原始绩效记录，完成二次修正、证明材料和确认流程。'],
-  'm2-9': ['自评结果比对', '比对自评分与外部评分、历史评分和系统测算结果。'],
-  'm2-10': ['隐私保护与脱敏', '对服务对象评价名单、手机号、身份信息进行脱敏处理。'],
-  'm2-11': ['服务对象名单抽取', '按服务事项和评价周期抽取服务对象样本。'],
-  'm2-12': ['问卷短信推送', '配置满意度问卷投放、短信推送和回收进度。'],
-  'm2-13': ['满意度自动汇总', '按部门、事项、维度自动汇总满意度评价结果。'],
-  'm2-14': ['低分样本核查', '对低分样本和异常评价进行人工核查。'],
+  'm2-9': ['政务服务评价入口', '配置服务事项并提交实名或匿名的本地群众评价。'],
+  'm2-10': ['评价数据管理与隐私脱敏', '脱敏查询群众评价，模拟敏感原文申请、审批和访问审计。'],
+  'm2-11': ['12345及政务平台评价归集', '通过本地文件模拟外部评价归集和规则情感标注。'],
+  'm2-12': ['自评任务管理', '创建、发布和跟踪部门自评任务及逐项填报。'],
+  'm2-13': ['佐证材料上传与分类', '按自评任务、机构和指标管理材料、分类与版本。'],
+  'm2-14': ['自评材料完整性预警', '使用确定性规则检查材料完整性并处理预警。'],
   'm3-1': ['智能预警与疑点核查', '围绕权责清单、编制使用、机构设置等触发疑点预警。'],
   'm4-1': ['数据采集与解析', '采集结构化表格、文档、系统接口数据并完成解析。'],
   'm4-2': ['AI评估模块', '基于指标规则、材料证据和业务数据生成辅助评估结果。'],
@@ -374,6 +377,12 @@ onMounted(() => {
         <OrganizationPerformanceData v-else-if="activePage === 'm2-7'" />
 
         <OrganizationPerformanceCorrections v-else-if="activePage === 'm2-8'" />
+
+        <PublicServiceEvaluation v-else-if="activePage === 'm2-9'" />
+
+        <PublicEvaluationManagement v-else-if="activePage === 'm2-10'" />
+
+        <PublicEvaluationImport v-else-if="activePage === 'm2-11'" />
 
         <section v-else-if="activePage === 'm1-3'" class="page active">
           <div class="alert" :class="errorMessage ? 'alert-danger' : 'alert-success'">{{ ledgerHint }}</div>

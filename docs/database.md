@@ -42,6 +42,7 @@ V008__create_indicator_management_tables.sql
 V009__create_counterpart_evaluation_tables.sql
 V010__create_internal_evaluation_tables.sql
 V011__create_org_performance_tables.sql
+V012__create_public_service_evaluation_tables.sql
 ```
 
 应用启动时自动按版本号顺序执行。执行记录保存在：
@@ -134,6 +135,13 @@ FAILURE
 | org_performance_corrections | 绩效二次修正草稿、提交及确认结果 |
 | org_performance_correction_materials | 二次修正与公共附件的关联 |
 | org_performance_correction_history | 二次修正状态流转历史 |
+| public_service_items | 本地政务服务事项及其评价机构 |
+| public_evaluations | 本地及文件归集的群众评价、脱敏原文和处理状态 |
+| public_evaluation_attachments | 群众评价图片与公共附件关联 |
+| public_privacy_access_requests | 敏感原文模拟访问申请与审批 |
+| public_privacy_access_audits | 已批准敏感原文访问审计 |
+| public_evaluation_import_batches | 12345及政务平台本地文件归集批次 |
+| public_evaluation_import_errors | 外部评价归集逐行错误 |
 | sys_users | 平台用户；当前仅用于开发模拟和操作人关联 |
 | sys_roles | 基础角色 |
 | sys_user_roles | 用户与角色多对多关系 |
