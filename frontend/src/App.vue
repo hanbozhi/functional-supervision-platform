@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import {
   fetchRightsDetail,
   fetchRightsItems,
@@ -113,8 +113,12 @@ const pageMeta = {
 }
 
 const activePage = ref(window.location.hash?.slice(1) || 'm6-1')
-const openGroups = reactive({ m1: true, m2: false, m4: false, m5: false, m6: true })
-const openSubgroups = reactive({ 'm1-0': true })
+const openGroups = reactive(Object.fromEntries(navGroups.map((group) => [group.id, false])))
+const openSubgroups = reactive(Object.fromEntries(
+  navGroups.flatMap((group) => (group.children || []).map((_, index) => [`${group.id}-${index}`, false]))
+))
+const manuallyClosedGroups = new Set()
+const manuallyClosedSubgroups = new Set()
 
 const filters = reactive({ keyword: '', department: '', powerType: '', sourceFile: '' })
 const pager = reactive({ page: 1, size: 10, total: 0, totalPages: 0 })
@@ -164,8 +168,17 @@ function isGroupActive(group) {
   return (group.children || []).some((subgroup) => subgroup.children.some((item) => item[0] === activePage.value))
 }
 
-function isSubgroupActive(group, subgroup) {
-  return subgroup.children.some((item) => item[0] === activePage.value)
+function expandMenuForPage(pageId, respectManualClose = true) {
+  for (const group of navGroups) {
+    if (group.direct?.[0] === pageId) return
+    for (const [subIndex, subgroup] of (group.children || []).entries()) {
+      if (!subgroup.children.some((item) => item[0] === pageId)) continue
+      const subgroupKey = `${group.id}-${subIndex}`
+      if (!respectManualClose || !manuallyClosedGroups.has(group.id)) openGroups[group.id] = true
+      if (!respectManualClose || !manuallyClosedSubgroups.has(subgroupKey)) openSubgroups[subgroupKey] = true
+      return
+    }
+  }
 }
 
 function toggleGroup(group) {
@@ -173,17 +186,31 @@ function toggleGroup(group) {
     activate(group.direct[0])
     return
   }
-  openGroups[group.id] = !openGroups[group.id]
+  const nextOpen = !openGroups[group.id]
+  openGroups[group.id] = nextOpen
+  if (nextOpen) manuallyClosedGroups.delete(group.id)
+  else manuallyClosedGroups.add(group.id)
 }
 
 function toggleSubgroup(key) {
-  openSubgroups[key] = !openSubgroups[key]
+  const nextOpen = !openSubgroups[key]
+  openSubgroups[key] = nextOpen
+  if (nextOpen) manuallyClosedSubgroups.delete(key)
+  else manuallyClosedSubgroups.add(key)
 }
 
 async function activate(pageId) {
   activePage.value = pageId
   window.location.hash = pageId
   if (pageId === 'm1-3') await ensureRightsLoaded()
+}
+
+function handleHashChange() {
+  const nextPage = window.location.hash?.slice(1)
+  if (!nextPage || nextPage === activePage.value) return
+  activePage.value = nextPage
+  expandMenuForPage(nextPage)
+  if (nextPage === 'm1-3') ensureRightsLoaded()
 }
 
 async function ensureRightsLoaded() {
@@ -288,7 +315,10 @@ function closeStaticModal() {
   staticModal.visible = false
 }
 
+expandMenuForPage(activePage.value, false)
+
 onMounted(() => {
+  window.addEventListener('hashchange', handleHashChange)
   window.showToast = showToastMessage
   window.showEvidence = (dept, score, grade) => openStaticModal(
     '评分依据说明',
@@ -304,6 +334,10 @@ onMounted(() => {
   window.closeWarningAudit = closeStaticModal
   if (activePage.value === 'm1-3') ensureRightsLoaded()
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('hashchange', handleHashChange)
+})
 </script>
 
 <template>
@@ -318,9 +352,9 @@ onMounted(() => {
           v-for="group in navGroups"
           :key="group.id"
           class="nav-group"
-          :class="{ open: openGroups[group.id] || isGroupActive(group), active: isGroupActive(group), direct: group.direct }"
+          :class="{ open: openGroups[group.id], active: isGroupActive(group), direct: group.direct }"
         >
-          <div class="group-title" @click="toggleGroup(group)">
+          <div class="group-title" :aria-expanded="group.direct ? undefined : openGroups[group.id]" @click="toggleGroup(group)">
             <span class="group-icon">{{ group.icon }}</span><span>{{ group.title }}</span><span class="group-arrow">▶</span>
           </div>
           <div v-if="!group.direct" class="group-children nested-menu">
@@ -328,9 +362,9 @@ onMounted(() => {
               v-for="(subgroup, subIndex) in group.children"
               :key="`${group.id}-${subIndex}`"
               class="nav-subgroup"
-              :class="{ open: openSubgroups[`${group.id}-${subIndex}`] || isSubgroupActive(group, subgroup) }"
+              :class="{ open: openSubgroups[`${group.id}-${subIndex}`] }"
             >
-              <div v-if="subgroup.title" class="subgroup-title" @click.stop="toggleSubgroup(`${group.id}-${subIndex}`)">
+              <div v-if="subgroup.title" class="subgroup-title" :aria-expanded="openSubgroups[`${group.id}-${subIndex}`]" @click.stop="toggleSubgroup(`${group.id}-${subIndex}`)">
                 <span>{{ subgroup.title }}</span><span class="subgroup-arrow">▶</span>
               </div>
               <div class="subgroup-children" :class="{ directChildren: !subgroup.title }">
