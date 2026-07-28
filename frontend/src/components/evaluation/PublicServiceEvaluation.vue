@@ -3,7 +3,7 @@ import{onMounted,reactive,ref}from'vue';import{publicEvaluationApi as api}from'.
 const orgs=ref([]),items=ref([]),history=ref([]),message=ref(''),image=ref(null),showItem=ref(false)
 const form=reactive({orgUnitId:'',serviceItemId:'',convenienceScore:5,attitudeScore:5,timelinessScore:5,clarityScore:5,commentText:'',anonymous:true,evaluatorName:'',evaluatorPhone:'',evaluatorIdNo:''})
 const item=reactive({id:null,itemCode:'',itemName:'',orgUnitId:'',description:'',status:'ACTIVE'})
-async function load(){try{[orgs.value,items.value,history.value]=await Promise.all([api.orgs(),api.items(),api.list({source:'LOCAL'})])}catch(e){message.value=e.message}}
+async function load(){try{const [o,i,h]=await Promise.all([api.orgs(),api.items(),api.list({source:'LOCAL',size:20})]);orgs.value=o;items.value=i;history.value=h.items}catch(e){message.value=e.message}}
 function editItem(x=null){Object.assign(item,x?{id:x.id,itemCode:x.item_code,itemName:x.item_name,orgUnitId:x.org_unit_id,description:x.description,status:x.status}:{id:null,itemCode:'',itemName:'',orgUnitId:'',description:'',status:'ACTIVE'});showItem.value=true}
 async function saveItem(){try{await api.saveItem(item.id,{...item});showItem.value=false;await load()}catch(e){message.value=e.message}}
 async function submit(){try{const r=await api.submit({...form},image.value);message.value=`评价 ${r.evaluation_no} 已保存`;Object.assign(form,{commentText:'',evaluatorName:'',evaluatorPhone:'',evaluatorIdNo:''});image.value=null;await load()}catch(e){message.value=e.message}}

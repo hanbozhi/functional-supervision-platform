@@ -16,6 +16,7 @@ class PublicEvaluationTest {
   Map<String,Object>batch=f.service.importFile("HOTLINE_12345",new MockMultipartFile("file","external.csv","text/csv",csv.getBytes(StandardCharsets.UTF_8)));
   assertEquals(1L,num(batch.get("success_rows")));assertEquals(1L,num(batch.get("failed_rows")));
   assertEquals(2,f.service.list(null,null,null,null,null).size());assertEquals("NEGATIVE",f.service.list(null,"HOTLINE_12345",null,null,null).get(0).get("sentiment"));
+  Map<String,Object>page=f.service.page(null,null,null,1,5,null,"2026-07-26","2026-07-26",1,1);assertEquals(1L,num(page.get("total")));assertEquals(1,((List<?>)page.get("items")).size());
   f.service.process(eid,new ProcessRequest("RESOLVED","已回访"));assertEquals("RESOLVED",f.service.detail(eid).get("process_status"));
   new DatabaseMigrationRunner(f.ds).run(new DefaultApplicationArguments(new String[0]));assertEquals(1,f.jdbc.queryForObject("SELECT count(*) FROM schema_migrations WHERE version='12'",Integer.class));assertEquals(1,f.jdbc.queryForObject("PRAGMA foreign_keys",Integer.class));
  }

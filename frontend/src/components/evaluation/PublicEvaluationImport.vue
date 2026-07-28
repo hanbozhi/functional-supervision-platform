@@ -2,7 +2,7 @@
 import{computed,onMounted,ref}from'vue';import{publicEvaluationApi as api}from'../../publicEvaluationApi'
 const stats=ref({}),batches=ref([]),rows=ref([]),selected=ref(null),source=ref('HOTLINE_12345'),file=ref(null),message=ref('')
 const negativeRate=computed(()=>stats.value.negative_rate||0)
-async function load(){try{[stats.value,batches.value,rows.value]=await Promise.all([api.stats(),api.imports(),api.list({})])}catch(e){message.value=e.message}}
+async function load(){try{const [s,b,r]=await Promise.all([api.stats(),api.imports(),api.list({size:100})]);stats.value=s;batches.value=b;rows.value=r.items}catch(e){message.value=e.message}}
 async function upload(){if(!file.value)return;try{selected.value=await api.importFile(source.value,file.value);message.value=`归集完成：成功${selected.value.success_rows}，失败${selected.value.failed_rows}`;await load();selected.value=await api.batch(selected.value.id)}catch(e){message.value=e.message}}
 async function open(id){selected.value=await api.batch(id)}
 async function tag(x){const sentiment=prompt('情感标签：POSITIVE / NEUTRAL / NEGATIVE',x.sentiment);if(!sentiment)return;try{await api.sentiment(x.id,{sentiment});await load()}catch(e){message.value=e.message}}

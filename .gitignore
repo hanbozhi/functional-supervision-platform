@@ -55,4 +55,5 @@ temp/
 .agents/
 *.tmp
 *.bak
+.fuse_hidden*
 ~$*
