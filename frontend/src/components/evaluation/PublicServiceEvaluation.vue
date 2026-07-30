@@ -1,15 +1,16 @@
 <script setup>
 import{onMounted,reactive,ref}from'vue';import{publicEvaluationApi as api}from'../../publicEvaluationApi'
-const orgs=ref([]),items=ref([]),history=ref([]),message=ref(''),image=ref(null),showItem=ref(false)
+const orgs=ref([]),items=ref([]),history=ref([]),message=ref(''),messageType=ref('success'),image=ref(null),showItem=ref(false)
 const form=reactive({orgUnitId:'',serviceItemId:'',convenienceScore:5,attitudeScore:5,timelinessScore:5,clarityScore:5,commentText:'',anonymous:true,evaluatorName:'',evaluatorPhone:'',evaluatorIdNo:''})
 const item=reactive({id:null,itemCode:'',itemName:'',orgUnitId:'',description:'',status:'ACTIVE'})
-async function load(){try{const [o,i,h]=await Promise.all([api.orgs(),api.items(),api.list({source:'LOCAL',size:20})]);orgs.value=o;items.value=i;history.value=h.items}catch(e){message.value=e.message}}
+function notice(text,type='success'){message.value=text;messageType.value=type}
+async function load(){try{const [o,i,h]=await Promise.all([api.orgs(),api.items(),api.list({source:'LOCAL',size:20})]);orgs.value=o;items.value=i;history.value=h.items}catch(e){notice(e.message,'error')}}
 function editItem(x=null){Object.assign(item,x?{id:x.id,itemCode:x.item_code,itemName:x.item_name,orgUnitId:x.org_unit_id,description:x.description,status:x.status}:{id:null,itemCode:'',itemName:'',orgUnitId:'',description:'',status:'ACTIVE'});showItem.value=true}
-async function saveItem(){try{await api.saveItem(item.id,{...item});showItem.value=false;await load()}catch(e){message.value=e.message}}
-async function submit(){try{const r=await api.submit({...form},image.value);message.value=`评价 ${r.evaluation_no} 已保存`;Object.assign(form,{commentText:'',evaluatorName:'',evaluatorPhone:'',evaluatorIdNo:''});image.value=null;await load()}catch(e){message.value=e.message}}
+async function saveItem(){try{await api.saveItem(item.id,{...item});showItem.value=false;notice('服务事项已保存');await load()}catch(e){notice(e.message,'error')}}
+async function submit(){try{const r=await api.submit({...form},image.value);notice(`评价 ${r.evaluation_no} 已保存`);Object.assign(form,{commentText:'',evaluatorName:'',evaluatorPhone:'',evaluatorIdNo:''});image.value=null;await load()}catch(e){notice(e.message,'error')}}
 onMounted(load)
 </script>
-<template><section class="page active"><div class="alert alert-info">本地群众评价入口：四项1～5星评分，支持匿名或实名提交，数据真实保存到SQLite。</div><div v-if="message" class="alert alert-success">{{message}}</div>
+<template><section class="page active"><div class="alert alert-info">本地群众评价入口：四项1～5星评分，支持匿名或实名提交，数据真实保存到SQLite。</div><div v-if="message" class="alert" :class="messageType==='error'?'alert-danger':'alert-success'">{{message}}</div>
 <div class="card"><div class="card-header"><h3>⭐ 政务服务评价</h3><button class="btn btn-outline" @click="editItem()">管理服务事项</button></div>
 <div class="form-grid"><div class="form-item"><label>评价机构 *</label><select v-model="form.orgUnitId"><option value="">请选择</option><option v-for="o in orgs" :key="o.id" :value="o.id">{{o.unit_name}}</option></select></div><div class="form-item"><label>服务事项 *</label><select v-model="form.serviceItemId"><option value="">请选择</option><option v-for="i in items.filter(x=>x.status==='ACTIVE'&&(!form.orgUnitId||x.org_unit_id==form.orgUnitId))" :key="i.id" :value="i.id">{{i.item_name}}</option></select></div>
 <div v-for="[k,n] in [['convenienceScore','办事便捷度'],['attitudeScore','服务态度'],['timelinessScore','办结时效'],['clarityScore','政策告知清晰度']]" :key="k" class="form-item"><label>{{n}}</label><select v-model.number="form[k]"><option v-for="s in 5" :key="s" :value="s">{{s}} 星</option></select></div>

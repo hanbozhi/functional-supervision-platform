@@ -1,4 +1,6 @@
-const BASE='/api/public-evaluations'
+import { API_BASE } from './api'
+
+const BASE=`${API_BASE}/public-evaluations`
 async function request(path,options={}){const r=await fetch(`${BASE}${path}`,options);if(!r.ok){const b=await r.json().catch(()=>({}));throw new Error(b.message||`请求失败（${r.status}）`)}return r.json()}
 const json=(method,body)=>({method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
 export const publicEvaluationApi={

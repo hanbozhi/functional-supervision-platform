@@ -140,12 +140,12 @@ class CoreFunctionManagementTest {
         // m1-5结果没有指向rights_items的外键，权责清单重导入可以清空自身数据。
         f.jdbc.update("DELETE FROM rights_items");
         assertEquals(0, f.jdbc.queryForObject("SELECT count(*) FROM rights_items", Integer.class));
-        assertEquals(6, f.jdbc.queryForObject(
-                "SELECT count(*) FROM schema_migrations", Integer.class));
+        assertEquals(1, f.jdbc.queryForObject(
+                "SELECT count(*) FROM schema_migrations WHERE version='6'", Integer.class));
         new DatabaseMigrationRunner(f.dataSource)
                 .run(new DefaultApplicationArguments(new String[0]));
-        assertEquals(6, f.jdbc.queryForObject(
-                "SELECT count(*) FROM schema_migrations", Integer.class));
+        assertEquals(1, f.jdbc.queryForObject(
+                "SELECT count(*) FROM schema_migrations WHERE version='6'", Integer.class));
         assertEquals(1, f.jdbc.queryForObject("PRAGMA foreign_keys", Integer.class));
     }
 

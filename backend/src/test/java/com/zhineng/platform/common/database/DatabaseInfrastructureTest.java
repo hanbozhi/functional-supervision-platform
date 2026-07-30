@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -21,6 +22,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.env.MockEnvironment;
 
 class DatabaseInfrastructureTest {
+
+    private static final int EXPECTED_MIGRATION_COUNT = 13;
 
     @TempDir
     Path tempDirectory;
@@ -40,7 +43,7 @@ class DatabaseInfrastructureTest {
         runner.run(new DefaultApplicationArguments(new String[0]));
 
         assertEquals(
-                4,
+                EXPECTED_MIGRATION_COUNT,
                 jdbcTemplate.queryForObject("SELECT count(*) FROM schema_migrations", Integer.class)
         );
         assertEquals(
@@ -103,6 +106,9 @@ class DatabaseInfrastructureTest {
         MockEnvironment environment = new MockEnvironment()
                 .withProperty("app.database.path", databasePath.toString());
         DataSource dataSource = new SQLiteDataSourceConfig().dataSource(environment);
+        try (var ignored = dataSource.getConnection()) {
+            // Create the SQLite file before concurrent opens; Windows cannot atomically create it twice.
+        }
         Callable<Void> migration = () -> {
             new DatabaseMigrationRunner(dataSource)
                     .run(new DefaultApplicationArguments(new String[0]));
@@ -116,11 +122,12 @@ class DatabaseInfrastructureTest {
             first.get();
             second.get();
         } finally {
-            executor.shutdownNow();
+            executor.shutdown();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
         }
 
         assertEquals(
-                4,
+                EXPECTED_MIGRATION_COUNT,
                 new JdbcTemplate(dataSource).queryForObject(
                         "SELECT count(*) FROM schema_migrations",
                         Integer.class

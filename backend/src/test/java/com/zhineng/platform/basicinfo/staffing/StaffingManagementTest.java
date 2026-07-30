@@ -44,8 +44,8 @@ class StaffingManagementTest {
         Fixture f = fixture();
         new DatabaseMigrationRunner(f.dataSource)
                 .run(new DefaultApplicationArguments(new String[0]));
-        assertEquals(5, f.jdbc.queryForObject(
-                "SELECT count(*) FROM schema_migrations", Integer.class));
+        assertEquals(1, f.jdbc.queryForObject(
+                "SELECT count(*) FROM schema_migrations WHERE version='5'", Integer.class));
         assertEquals(1, f.jdbc.queryForObject("PRAGMA foreign_keys", Integer.class));
 
         long orgId = f.jdbc.queryForObject(

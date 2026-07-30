@@ -6,15 +6,17 @@ const records = ref([])
 const corrections = ref([])
 const selected = ref(null)
 const message = ref('')
+const messageType = ref('success')
 const showForm = ref(false)
 const materialInput = ref(null)
 const form = reactive({ id: null, rawRecordId: null, correctionScope: 'ALL', correctedGrade: '', correctedKeyWorkScore: null, correctedLeadershipRating: '', correctionReason: '', rowVersion: null })
 const statusLabels = { DRAFT: '草稿', SUBMITTED: '待确认', CONFIRMED: '已确认', REJECTED: '已驳回' }
 const confirmedCount = computed(() => corrections.value.filter(x => x.status === 'CONFIRMED').length)
+function notice(text, type = 'success') { message.value = text; messageType.value = type }
 
 async function load() {
   try { [records.value, corrections.value] = await Promise.all([performanceApi.records(), performanceApi.corrections()]) }
-  catch (error) { message.value = error.message }
+  catch (error) { notice(error.message, 'error') }
 }
 function create(item) {
   Object.assign(form, {
@@ -39,28 +41,28 @@ async function save() {
     const body = { ...form }
     const result = form.id ? await performanceApi.updateCorrection(form.id, body) : await performanceApi.createCorrection(body)
     showForm.value = false
-    message.value = '修正草稿已保存'
+    notice('修正草稿已保存')
     await load()
     selected.value = await performanceApi.correction(result.id)
-  } catch (error) { message.value = error.message }
+  } catch (error) { notice(error.message, 'error') }
 }
 async function detail(item) {
-  try { selected.value = await performanceApi.correction(item.id) } catch (error) { message.value = error.message }
+  try { selected.value = await performanceApi.correction(item.id) } catch (error) { notice(error.message, 'error') }
 }
 async function submit(item) {
-  try { await performanceApi.submitCorrection(item.id, { opinion: '提交组织部二次修正确认', rowVersion: item.row_version }); message.value = '已提交确认'; await load(); if (selected.value?.id === item.id) selected.value = await performanceApi.correction(item.id) } catch (error) { message.value = error.message }
+  try { await performanceApi.submitCorrection(item.id, { opinion: '提交组织部二次修正确认', rowVersion: item.row_version }); notice('已提交确认'); await load(); if (selected.value?.id === item.id) selected.value = await performanceApi.correction(item.id) } catch (error) { notice(error.message, 'error') }
 }
 async function review(item, action) {
   const opinion = window.prompt(action === 'CONFIRM' ? '请输入确认意见' : '请输入驳回意见')
   if (!opinion) return
-  try { await performanceApi.reviewCorrection(item.id, { action, opinion, rowVersion: item.row_version }); message.value = action === 'CONFIRM' ? '修正已确认并形成有效结果' : '修正已驳回'; await load(); selected.value = await performanceApi.correction(item.id) } catch (error) { message.value = error.message }
+  try { await performanceApi.reviewCorrection(item.id, { action, opinion, rowVersion: item.row_version }); notice(action === 'CONFIRM' ? '修正已确认并形成有效结果' : '修正已驳回'); await load(); selected.value = await performanceApi.correction(item.id) } catch (error) { notice(error.message, 'error') }
 }
 async function uploadMaterial(event) {
   const file = event.target.files?.[0]
   event.target.value = ''
   if (!file || !selected.value) return
   const remarks = window.prompt('材料说明（可选）') || ''
-  try { await performanceApi.uploadMaterial(selected.value.id, file, remarks); selected.value = await performanceApi.correction(selected.value.id); message.value = '证明材料已上传' } catch (error) { message.value = error.message }
+  try { await performanceApi.uploadMaterial(selected.value.id, file, remarks); selected.value = await performanceApi.correction(selected.value.id); notice('证明材料已上传') } catch (error) { notice(error.message, 'error') }
 }
 const display = value => value == null || value === '' ? '-' : value
 onMounted(load)
@@ -69,7 +71,7 @@ onMounted(load)
 <template>
   <section class="page active">
     <div class="alert alert-info">二次修正不会覆盖原始导入数据；只有“已确认”修正参与当前有效结果计算。</div>
-    <div v-if="message" class="alert alert-success">{{ message }}</div>
+    <div v-if="message" class="alert" :class="messageType === 'error' ? 'alert-danger' : 'alert-success'">{{ message }}</div>
     <div class="stat-grid">
       <div class="stat-card"><div class="num">{{ records.length }}</div><div class="label">当前绩效记录</div></div>
       <div class="stat-card"><div class="num orange">{{ corrections.length }}</div><div class="label">修正记录</div></div>

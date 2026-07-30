@@ -1,4 +1,6 @@
-const BASE='/api/internal-evaluations'
+import { API_BASE } from './api'
+
+const BASE=`${API_BASE}/internal-evaluations`
 async function request(path,options={}){
   const response=await fetch(`${BASE}${path}`,options)
   if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.message||`请求失败（${response.status}）`)}

@@ -1,4 +1,6 @@
-const BASE = '/api/org-performance'
+import { API_BASE } from './api'
+
+const BASE = `${API_BASE}/org-performance`
 
 async function request(path, options = {}) {
   const response = await fetch(`${BASE}${path}`, options)

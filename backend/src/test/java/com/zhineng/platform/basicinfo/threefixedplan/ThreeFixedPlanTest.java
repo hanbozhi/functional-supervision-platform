@@ -116,8 +116,8 @@ class ThreeFixedPlanTest {
         Fixture f = fixture();
         new DatabaseMigrationRunner(f.dataSource)
                 .run(new DefaultApplicationArguments(new String[0]));
-        assertEquals(4, f.jdbc.queryForObject(
-                "SELECT count(*) FROM schema_migrations", Integer.class));
+        assertEquals(1, f.jdbc.queryForObject(
+                "SELECT count(*) FROM schema_migrations WHERE version='4'", Integer.class));
         assertEquals(1, f.jdbc.queryForObject(
                 "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='three_fixed_plans'",
                 Integer.class));
